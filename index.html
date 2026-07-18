@@ -19,6 +19,18 @@
       --rep:#6db3f2; --rep-bg:#1c2c3d; --chip:#252d27;
     }
   }
+  :root[data-theme="light"]{
+    --bg:#f4f6f4; --card:#ffffff; --text:#15211a; --muted:#5c6b62;
+    --border:#d8ded9; --accent:#1f7a3d; --accent-soft:#e3f0e7;
+    --ok:#1f7a3d; --ok-bg:#e3f0e7; --miss:#b3261e; --miss-bg:#fbe9e7;
+    --rep:#0b5cad; --rep-bg:#e2eefb; --chip:#eceeec;
+  }
+  :root[data-theme="dark"]{
+    --bg:#121714; --card:#1c231e; --text:#e8ede9; --muted:#9aa79f;
+    --border:#2e372f; --accent:#4cba74; --accent-soft:#1e3327;
+    --ok:#4cba74; --ok-bg:#1e3327; --miss:#ff7b6e; --miss-bg:#3a221f;
+    --rep:#6db3f2; --rep-bg:#1c2c3d; --chip:#252d27;
+  }
   *{box-sizing:border-box; min-width:0}
   html,body{margin:0; overflow-x:hidden; max-width:100%}
   body{
@@ -252,6 +264,7 @@
       <div class="hbtns">
         <button id="homeBtn" title="Inicio">⌂</button>
         <button id="layBtn" title="Cambiar vista">⬌</button>
+        <button id="cfgBtn" title="Configuración">⚙</button>
       </div>
     </div>
     <div class="stats" id="stats"></div>
@@ -281,10 +294,19 @@
   <!-- EQUIPOS -->
   <section id="sec-equipos">
     <div class="card" style="padding:6px 10px" id="teamList"></div>
-    <div class="btn-line">
-      <button id="addTeam">＋ Agregar equipo</button>
+  </section>
+
+  <!-- CONFIG -->
+  <section id="sec-config">
+    <h2>Apariencia</h2>
+    <div class="card">
+      <select id="themeSel">
+        <option value="">Tema: automático (según el sistema)</option>
+        <option value="light">Tema: claro</option>
+        <option value="dark">Tema: oscuro</option>
+      </select>
     </div>
-    <h2>Copia de seguridad</h2>
+    <h2>Datos</h2>
     <div class="card">
       <textarea id="io" rows="3" placeholder="Acá aparece tu backup, o pegá uno para importar" style="font-size:.8rem; font-family:monospace"></textarea>
       <div class="btn-line">
@@ -296,6 +318,20 @@
         <button id="impBtn">Importar</button>
       </div>
       <p class="hint" id="storageNote"></p>
+    </div>
+    <h2>Álbum</h2>
+    <div class="card">
+      <div class="btn-line">
+        <button id="addTeam">＋ Agregar equipo</button>
+        <button onclick="printReport()">🖨 Reporte</button>
+      </div>
+    </div>
+    <h2>Zona peligrosa</h2>
+    <div class="card">
+      <div class="btn-line">
+        <button id="resetBtn" style="border-color:var(--miss); color:var(--miss)">🗑 Resetear álbum</button>
+      </div>
+      <p class="hint">Borra todas las figuritas cargadas (pegadas y repes). Pide doble confirmación.</p>
     </div>
   </section>
 </div>
@@ -747,6 +783,27 @@ document.querySelectorAll('.tabs button').forEach(b=>{
 $('faltanTeam').addEventListener('change', renderFaltan);
 $('homeBtn').addEventListener('click', ()=>{ switchTab('buscar'); goHome(); });
 $('layBtn').addEventListener('click', toggleLayout);
+$('cfgBtn').addEventListener('click', ()=>{ switchTab('config'); renderAll(); });
+
+// ── Configuración ──────────────────────────────────────────
+function applyTheme(){
+  if(db.theme) document.documentElement.dataset.theme = db.theme;
+  else delete document.documentElement.dataset.theme;
+  $('themeSel').value = db.theme || '';
+}
+$('themeSel').addEventListener('change', e=>{
+  db.theme = e.target.value || '';
+  if(!db.theme) delete db.theme;
+  save(); applyTheme();
+});
+$('resetBtn').addEventListener('click', ()=>{
+  const t = totals();
+  if(!confirm('¿Resetear el álbum? Se borran las '+t.have+' figuritas cargadas y las '+t.reps+' repes.')) return;
+  if(!confirm('Última confirmación: esto NO se puede deshacer. ¿Borrar todo igual?')) return;
+  db.counts = {};
+  save(); renderAll();
+  toast('Álbum reseteado');
+});
 
 // ── Equipos custom ─────────────────────────────────────────
 $('addTeam').addEventListener('click', ()=>{
@@ -776,9 +833,10 @@ $('impBtn').addEventListener('click', ()=>{
     const obj = JSON.parse($('io').value);
     if(!obj || typeof obj.counts !== 'object') throw 0;
     if(!confirm('Esto reemplaza tus datos actuales. ¿Importar?')) return;
-    db = {counts:obj.counts||{}, custom:obj.custom||[], pages:obj.pages||{}, sizes:obj.sizes||{}, horiz:!!obj.horiz, horizSet:!!obj.horizSet};
+    db = {counts:obj.counts||{}, custom:obj.custom||[], pages:obj.pages||{}, sizes:obj.sizes||{}, horiz:!!obj.horiz, horizSet:!!obj.horizSet, theme:obj.theme||''};
+    if(!db.theme) delete db.theme;
     if(!db.horizSet) db.horiz = true;
-    save(); renderAll(); toast('Backup importado');
+    save(); applyTheme(); renderAll(); toast('Backup importado');
   }catch(e){ toast('El texto pegado no es un backup válido'); }
 });
 
@@ -816,6 +874,7 @@ $('storageNote').textContent = storageOk
   ? 'Los datos se guardan solos en este navegador. Usá el link de sync para pasarlos a otro dispositivo.'
   : '⚠️ Este navegador no permite guardar datos: al cerrar la página se pierde todo. Usá "Copiar backup" antes de salir.';
 
+applyTheme();
 renderAll();
 </script>
 </body>
