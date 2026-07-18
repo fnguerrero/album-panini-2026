@@ -1,6 +1,3 @@
-<!doctype html>
-<html lang="es">
-<head>
 <meta charset="utf-8">
 <title>Álbum Panini 2026</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -18,6 +15,18 @@
       --ok:#4cba74; --ok-bg:#1e3327; --miss:#ff7b6e; --miss-bg:#3a221f;
       --rep:#6db3f2; --rep-bg:#1c2c3d; --chip:#252d27;
     }
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f6f4; --card:#ffffff; --text:#15211a; --muted:#5c6b62;
+    --border:#d8ded9; --accent:#1f7a3d; --accent-soft:#e3f0e7;
+    --ok:#1f7a3d; --ok-bg:#e3f0e7; --miss:#b3261e; --miss-bg:#fbe9e7;
+    --rep:#0b5cad; --rep-bg:#e2eefb; --chip:#eceeec;
+  }
+  :root[data-theme="dark"]{
+    --bg:#121714; --card:#1c231e; --text:#e8ede9; --muted:#9aa79f;
+    --border:#2e372f; --accent:#4cba74; --accent-soft:#1e3327;
+    --ok:#4cba74; --ok-bg:#1e3327; --miss:#ff7b6e; --miss-bg:#3a221f;
+    --rep:#6db3f2; --rep-bg:#1c2c3d; --chip:#252d27;
   }
   :root[data-theme="light"]{
     --bg:#f4f6f4; --card:#ffffff; --text:#15211a; --muted:#5c6b62;
@@ -146,40 +155,40 @@
       var(--tc,#17934e) 42%,
       color-mix(in srgb, var(--tc,#0b5e50) 78%, black) 100%);
   }
-  .page.pgleft{padding-left:17px}
-  .road{
-    position:absolute; left:3px; top:10px; writing-mode:vertical-rl; transform:rotate(180deg);
-    font-size:.48rem; font-weight:800; font-style:italic; letter-spacing:.1em; opacity:.75; white-space:nowrap;
-  }
+  .page.pgleft{padding-left:10px}
   .spread.horiz .page{flex:1; padding:5px}
-  .spread.horiz .page.pgleft{padding-left:13px}
-  .spread.horiz .road{font-size:.38rem; left:2px; top:6px}
+  .spread.horiz .page.pgleft{padding-left:5px}
   .pgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; grid-auto-rows:minmax(74px,auto)}
   .spread.horiz .pgrid{gap:4px; grid-auto-rows:minmax(58px,auto)}
-  .tblock{grid-column:span 2; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; text-align:left; padding:4px 2px 4px 5px}
+  .tblock{
+    grid-column:span 2; display:flex; flex-direction:column; justify-content:center; align-items:flex-start;
+    text-align:left; padding:4px 2px 4px 5px; min-width:0; overflow:hidden;
+  }
   .we-pre{font-size:1.05rem; font-weight:900; font-style:italic; letter-spacing:.14em; line-height:1; color:rgba(255,255,255,.95); text-shadow:1px 1px 0 rgba(0,0,0,.18)}
   .we{
-    font-size:1.35rem; font-weight:900; font-style:italic; letter-spacing:0; line-height:1;
-    text-transform:uppercase; text-wrap:balance;
+    font-size:clamp(1rem, 5.4vw, 1.35rem); font-weight:900; font-style:italic; letter-spacing:0; line-height:.98;
+    text-transform:uppercase; text-wrap:balance; max-width:100%; overflow-wrap:anywhere;
     color:#10304a; color:color-mix(in srgb, var(--tc,#0d7247) 38%, black);
   }
-  .fed{display:flex; gap:6px; align-items:center; margin-top:6px}
+  .fed{display:flex; gap:6px; align-items:flex-start; margin-top:6px; max-width:100%; min-width:0}
   .fed .fl{width:26px; box-shadow:0 1px 3px rgba(0,0,0,.35)}
   .fed span{
-    font-size:.52rem; font-weight:800; line-height:1.15; text-align:left; max-width:110px;
+    flex:1; min-width:0; font-size:.5rem; font-weight:800; line-height:1.08; text-align:left; max-width:110px;
+    overflow-wrap:anywhere;
     color:#10304a; color:color-mix(in srgb, var(--tc,#0d7247) 38%, black);
   }
-  .spread.horiz .we{font-size:.82rem}
-  .spread.horiz .we-pre{font-size:.62rem; letter-spacing:.1em}
+  .spread.horiz .tblock{padding:3px 1px 3px 4px; justify-content:center}
+  .spread.horiz .we{font-size:clamp(.64rem, 3.2vw, .82rem); line-height:.96}
+  .spread.horiz .we-pre{font-size:.56rem; letter-spacing:.08em}
   .spread.horiz .fed{margin-top:3px; gap:4px}
   .spread.horiz .fed .fl{width:16px}
   .spread.horiz .fed span{display:none}
   .pgn{text-align:right; font-size:.68rem; opacity:.75; margin-top:6px; font-style:italic}
   .spread.horiz .pgn{font-size:.58rem}
 
-  .slot{position:relative; border:0; border-radius:9px; padding:12px 2px 10px; display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; font-family:inherit}
+  .slot{position:relative; border:0; border-radius:9px; padding:12px 2px 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; font-family:inherit}
   .spread.horiz .slot{padding:7px 1px 6px; gap:1px; border-radius:6px}
-  .slot .sc{font-size:.6rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase}
+  .slot .sc{position:absolute; top:7px; left:0; right:0; text-align:center; font-size:.6rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase}
   .slot .sn{font-size:1.55rem; font-weight:900; font-style:italic; line-height:1; font-variant-numeric:tabular-nums}
   .slot .pn{
     font-size:.5rem; font-weight:800; text-transform:uppercase; letter-spacing:.03em;
@@ -187,21 +196,38 @@
     opacity:.85; padding:0 2px; margin-top:1px;
   }
   .spread.horiz .slot .pn{display:none}
-  .spread.horiz .slot .sc{font-size:.48rem}
+  .spread.horiz .slot .sc{top:5px; font-size:.48rem}
   .spread.horiz .slot .sn{font-size:1.15rem}
   .slot.smiss{background:#ffffff; color:#a9b6c4; box-shadow:inset 0 0 0 2px rgba(30,60,90,.08)}
   .slot.sok{background:linear-gradient(160deg,#0e4d2c,#186b3c); color:#fff; box-shadow:inset 0 0 0 2px rgba(255,255,255,.28)}
   .slot.srep{background:linear-gradient(160deg,#3b2a6e,#6242a8); color:#fff}
   .slot.sel{outline:3px solid #ffd757}
+  .slot.shiny.smiss{background:linear-gradient(160deg,#ead9f7,#cbaae9); color:#7a4ba8}
   .slot .b{position:absolute; top:-7px; right:-6px; background:#ffd757; color:#4a3a10; border-radius:9px; font-size:.68rem; padding:1px 5px; font-weight:800}
   .slot .tick{position:absolute; top:4px; right:6px; font-size:.7rem; opacity:.9}
-  .slot.wide{grid-column:span 2}
-  .gblock{background:rgba(0,0,0,.28); border-radius:9px; display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center; padding:4px 2px}
-  .gblock .gt{font-weight:900; font-style:italic; font-size:.78rem; letter-spacing:.06em}
-  .gblock .gfl{display:grid; grid-template-columns:1fr 1fr; gap:3px; justify-items:center}
-  .gblock .gfl .fl{width:17px; cursor:pointer}
-  .spread.horiz .gblock .gt{font-size:.56rem}
-  .spread.horiz .gblock .gfl .fl{width:12px}
+  .slot.wide{
+    grid-column:span 2;
+    justify-self:center;
+    align-self:center;
+    width:64%;
+    aspect-ratio:1.48;
+    min-height:0;
+  }
+  .spread.horiz .slot.wide{width:63%}
+  .gblock{
+    display:flex; align-items:center; justify-content:center; padding:0 2px;
+    background:transparent; color:rgba(255,255,255,.95);
+  }
+  .gblock .gt{
+    display:inline-block; padding:3px 0; border-top:2px solid rgba(255,255,255,.7);
+    border-bottom:2px solid rgba(255,255,255,.7);
+    font-weight:900; font-style:italic; font-size:.72rem; letter-spacing:.06em; white-space:nowrap;
+    text-shadow:1px 1px 0 rgba(0,0,0,.18);
+  }
+  .spread.horiz .gblock .gt{font-size:.52rem; border-width:1.5px}
+  .metabar{display:flex; justify-content:flex-end; gap:14px; margin-top:8px; font-size:.78rem; color:var(--muted); font-variant-numeric:tabular-nums; flex-wrap:wrap}
+  .metabar span{cursor:pointer}
+  .metabar .lay{color:var(--accent); font-weight:700}
 
   /* Fallback grilla uniforme (FWC / CC / custom) */
   .album{
@@ -267,8 +293,7 @@
     #report .rline{margin-left:10px}
   }
 </style>
-</head>
-<body>
+
 <div class="wrap">
   <header>
     <div class="hrow">
@@ -541,13 +566,13 @@ function totals(){
 
 function renderStats(){
   const t = totals();
-  $('stats').innerHTML = 'Pegadas <b>'+t.have+'</b>/'+t.total+' · Faltan <b>'+t.miss+'</b> · Repetidas <b>'+t.reps+'</b>';
+  $('stats').innerHTML = '';
   $('tabRepes').textContent = t.reps;
   $('tabFaltan').textContent = t.miss;
   $('layBtn').textContent = db.horiz ? '⬍' : '⬌';
 }
 
-// Barra: figurita seleccionada + botones (oculta en inicio)
+// Barra fija: figurita seleccionada + botones
 function renderResult(){
   const el = $('result');
   const idle = !selTeam && !selCode;
@@ -570,7 +595,7 @@ function renderResult(){
   }
 }
 
-// Pantalla de inicio: resumen + selecciones ordenadas por sigla
+// Pantalla de inicio: resumen + selecciones en orden alfabético
 function renderHome(){
   const el = $('home');
   const idle = !selTeam && !selCode && !$('q').value.trim();
@@ -589,8 +614,8 @@ function renderHome(){
   el.innerHTML = '<div class="statgrid">'
     + '<div class="stat ok"><div class="v">'+t.have+'</div><div class="l">Pegadas</div></div>'
     + '<div class="stat miss"><div class="v">'+t.miss+'</div><div class="l">Faltan</div></div>'
-    + '<div class="stat rep"><div class="v">'+t.reps+'</div><div class="l">Repetidas</div></div>'
-    + '<div class="stat pct"><div class="v">'+pct+'%</div><div class="l">Álbum</div></div>'
+    + '<div class="stat rep"><div class="v">'+t.reps+'</div><div class="l">Repes</div></div>'
+    + '<div class="stat pct"><div class="v">'+pct+'%</div><div class="l">%</div></div>'
     + '</div>'
     + '<h2>Selecciones</h2><div class="teambtns">'+btns+'</div>'
     + '<div class="btn-line"><button onclick="printReport()">🖨 Reporte para imprimir</button></div>';
@@ -601,7 +626,7 @@ function slotBtn(t, n, extra){
   const cls = 'slot '+(v>1?'srep':(v===1?'sok':'smiss'))+(code===selCode?' sel':'')+(extra?' '+extra:'');
   const pn = nameOf(t.c, n);
   return '<button class="'+cls+'" onclick="pick(\''+code+'\')">'
-    + '<span class="sc">'+t.c+' '+(n===0?'00':n)+'</span><span class="sn">'+(n===0?'00':n)+'</span>'
+    + '<span class="sc">'+t.c+'</span><span class="sn">'+(n===0?'00':n)+'</span>'
     + (pn ? '<span class="pn">'+pn+'</span>' : '')
     + (v>1 ? '<span class="b">+'+(v-1)+'</span>' : (v===1 ? '<span class="tick">✓</span>' : ''))
     + '</button>';
@@ -618,7 +643,6 @@ function renderTeamView(){
   if(t.g && maxOf(t)===20 && !hasZero(t)){
     const s = n => slotBtn(t, n);
     const left = '<div class="page pgleft"'+style+'>'
-      + '<div class="road">ROAD TO FIFA WORLD CUP 26™</div>'
       + '<div class="pgrid">'
       + '<div class="tblock"><div class="we-pre">WE ARE</div>'
       + '<div class="we">'+t.en.toUpperCase()+'</div>'
@@ -627,12 +651,10 @@ function renderTeamView(){
       + s(3)+s(4)+s(5)+s(6)
       + s(7)+s(8)+s(9)+s(10)
       + '</div><div class="pgn">pág. '+(pg||'?')+'</div></div>';
-    const gTeams = teams().filter(x=>x.g===t.g);
-    const gflags = gTeams.map(x=>'<img class="fl" src="https://flagcdn.com/w40/'+(ISO[x.c]||'')+'.png" alt="'+x.c+'" title="'+x.es+'" onclick="goTeam(\''+x.c+'\')" onerror="this.style.display=\'none\'">').join('');
     const right = '<div class="page"'+style+'><div class="pgrid">'
       + s(11)+s(12)+slotBtn(t, 13, 'wide')
       + s(14)+s(15)+s(16)+s(17)
-      + '<div class="gblock"><span class="gt">GRUPO '+t.g+'</span><span class="gfl">'+gflags+'</span></div>'
+      + '<div class="gblock"><span class="gt">GRUPO '+t.g+'</span></div>'
       + s(18)+s(19)+s(20)
       + '</div><div class="pgn">pág. '+(pg?pg+1:'?')+'</div></div>';
     el.innerHTML = '<div class="spread'+(db.horiz?' horiz':'')+'">'+left+right+'</div>';
@@ -871,10 +893,8 @@ $('impBtn').addEventListener('click', ()=>{
     const obj = JSON.parse($('io').value);
     if(!obj || typeof obj.counts !== 'object') throw 0;
     if(!confirm('Esto reemplaza tus datos actuales. ¿Importar?')) return;
-    db = {counts:obj.counts||{}, custom:obj.custom||[], pages:obj.pages||{}, sizes:obj.sizes||{}, horiz:!!obj.horiz, horizSet:!!obj.horizSet, theme:obj.theme||''};
-    if(!db.theme) delete db.theme;
-    if(!db.horizSet) db.horiz = true;
-    save(); applyTheme(); renderAll(); toast('Backup importado');
+    db = {counts:obj.counts||{}, custom:obj.custom||[], pages:obj.pages||{}, sizes:obj.sizes||{}, horiz:!!obj.horiz};
+    save(); renderAll(); toast('Backup importado');
   }catch(e){ toast('El texto pegado no es un backup válido'); }
 });
 
@@ -909,11 +929,9 @@ $('syncBtn').addEventListener('click', ()=>{
 })();
 
 $('storageNote').textContent = storageOk
-  ? 'Los datos se guardan solos en este navegador. Usá el link de sync para pasarlos a otro dispositivo.'
+  ? 'Los datos se guardan solos en este navegador. El backup es por si cambiás de teléfono o navegador.'
   : '⚠️ Este navegador no permite guardar datos: al cerrar la página se pierde todo. Usá "Copiar backup" antes de salir.';
 
 applyTheme();
 renderAll();
 </script>
-</body>
-</html>
