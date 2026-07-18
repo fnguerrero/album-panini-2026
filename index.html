@@ -27,7 +27,7 @@
     font-size:16px; line-height:1.4;
     -webkit-tap-highlight-color:transparent;
   }
-  .wrap{max-width:520px; margin:0 auto; padding:12px 12px 160px}
+  .wrap{max-width:520px; margin:0 auto; padding:12px 12px 84px}
   header{padding:4px 2px 10px}
   .hrow{display:flex; align-items:center; justify-content:space-between; gap:8px}
   header h1{font-size:1rem; margin:0; letter-spacing:.02em; white-space:nowrap}
@@ -89,21 +89,16 @@
   .pbar{height:8px; background:var(--chip); border-radius:4px; overflow:hidden; margin-top:10px}
   .pbar i{display:block; height:100%; background:var(--accent)}
   .plabel{font-size:.75rem; color:var(--muted); text-align:center; margin-top:4px; font-variant-numeric:tabular-nums}
-  .teambtns{display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin-top:8px}
+  .teambtns{display:grid; grid-template-columns:repeat(5,1fr); gap:5px; margin-top:8px}
   .tbtn{
-    display:flex; align-items:center; gap:8px; padding:10px 9px; border-radius:10px;
-    border:1px solid var(--border); background:var(--card); color:var(--text);
-    font-weight:600; font-size:.88rem; cursor:pointer; text-align:left; font-family:inherit;
+    display:flex; flex-direction:column; align-items:center; gap:3px; padding:7px 2px;
+    border-radius:9px; border:1px solid var(--border); background:var(--card); color:var(--text);
+    font-weight:800; font-size:.72rem; letter-spacing:.04em; cursor:pointer; font-family:inherit;
   }
-  .tbtn .tn{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-  .tbtn small{color:var(--muted); font-variant-numeric:tabular-nums; font-weight:600}
+  .tbtn .fl{width:24px; vertical-align:0}
 
-  /* Barra de acción fija (figurita seleccionada + botones) */
-  .actionbar{
-    position:fixed; bottom:calc(62px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
-    width:100%; max-width:520px; padding:8px 12px; display:flex; gap:8px; z-index:9;
-    background:var(--bg); border-top:1px solid var(--border);
-  }
+  /* Barra de acción (figurita seleccionada + botones) */
+  .actionbar{display:flex; gap:8px; margin-top:10px}
   .ab-chip{
     flex:1; border-radius:10px; display:flex; align-items:center; justify-content:center; gap:8px;
     font-weight:800; font-size:.95rem; padding:11px 6px; font-variant-numeric:tabular-nums;
@@ -141,25 +136,30 @@
   .pgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; grid-auto-rows:minmax(74px,auto)}
   .spread.horiz .pgrid{gap:5px; grid-auto-rows:minmax(50px,auto)}
   .tblock{grid-column:span 2; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:2px}
-  .we-pre{font-size:.7rem; font-weight:800; font-style:italic; letter-spacing:.2em; opacity:.9}
-  .we{font-size:1rem; font-weight:900; font-style:italic; letter-spacing:.02em; line-height:1.15; text-wrap:balance}
-  .spread.horiz .we{font-size:.7rem}
-  .spread.horiz .we-pre{font-size:.52rem; letter-spacing:.12em}
+  .we-pre{font-size:.95rem; font-weight:900; font-style:italic; letter-spacing:.22em; line-height:1; text-shadow:1px 1px 0 rgba(0,0,0,.25)}
+  .we{font-size:1.1rem; font-weight:900; font-style:italic; letter-spacing:.01em; line-height:1.1; text-wrap:balance; text-transform:uppercase; text-shadow:1px 1px 0 rgba(0,0,0,.25)}
+  .spread.horiz .we{font-size:.68rem}
+  .spread.horiz .we-pre{font-size:.6rem; letter-spacing:.14em}
   .spread.horiz .fl.big{width:26px; margin-top:4px}
   .pgn{text-align:right; font-size:.68rem; opacity:.75; margin-top:6px; font-style:italic}
   .spread.horiz .pgn{font-size:.58rem}
 
   .slot{position:relative; border:0; border-radius:9px; padding:12px 2px 10px; display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; font-family:inherit}
   .spread.horiz .slot{padding:6px 1px 5px; gap:1px; border-radius:6px}
-  .slot .sc{font-size:.62rem; font-weight:800; letter-spacing:.08em}
-  .slot .sn{font-size:1.5rem; font-weight:900; line-height:1; font-variant-numeric:tabular-nums}
-  .spread.horiz .slot .sc{font-size:.48rem}
+  .slot .sc{font-size:.6rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase}
+  .slot .sn{font-size:1.55rem; font-weight:900; font-style:italic; line-height:1; font-variant-numeric:tabular-nums}
+  .slot .pn{
+    font-size:.5rem; font-weight:800; text-transform:uppercase; letter-spacing:.03em;
+    line-height:1.1; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    opacity:.85; padding:0 2px; margin-top:1px;
+  }
+  .spread.horiz .slot .pn{display:none}
+  .spread.horiz .slot .sc{font-size:.46rem}
   .spread.horiz .slot .sn{font-size:.95rem}
-  .slot.smiss{background:#f4efe3; color:#a89f8d}
+  .slot.smiss{background:#f7f3e8; color:#a89f8d; box-shadow:inset 0 0 0 2px rgba(0,0,0,.05)}
   .slot.sok{background:linear-gradient(160deg,#0e4d2c,#186b3c); color:#fff; box-shadow:inset 0 0 0 2px rgba(255,255,255,.28)}
   .slot.srep{background:linear-gradient(160deg,#3b2a6e,#6242a8); color:#fff}
   .slot.sel{outline:3px solid #ffd757}
-  .slot.shiny.smiss{background:linear-gradient(160deg,#ead9f7,#cbaae9); color:#7a4ba8}
   .slot .b{position:absolute; top:-7px; right:-6px; background:#ffd757; color:#4a3a10; border-radius:9px; font-size:.68rem; padding:1px 5px; font-weight:800}
   .slot .tick{position:absolute; top:4px; right:6px; font-size:.7rem; opacity:.9}
   .gblock{grid-column:span 2; background:rgba(0,0,0,.28); border-radius:9px; display:flex; align-items:center; justify-content:center}
@@ -207,13 +207,25 @@
   }
   .empty{text-align:center; color:var(--muted); padding:26px 10px; font-size:.95rem}
   .toast{
-    position:fixed; bottom:130px; left:50%; transform:translateX(-50%);
+    position:fixed; bottom:84px; left:50%; transform:translateX(-50%);
     background:var(--text); color:var(--bg); padding:9px 18px; border-radius:20px;
     font-size:.9rem; font-weight:600; opacity:0; transition:opacity .25s; pointer-events:none; z-index:20;
   }
   .toast.show{opacity:1}
   button:focus-visible, input:focus-visible, select:focus-visible{outline:3px solid var(--accent); outline-offset:1px}
   @media (prefers-reduced-motion: reduce){ .toast{transition:none} }
+
+  /* Reporte imprimible */
+  #report{display:none}
+  @media print{
+    body > *:not(#report){display:none !important}
+    #report{display:block !important; color:#000; background:#fff; font-size:10px; line-height:1.4}
+    #report h1{font-size:14px; margin:0 0 2px}
+    #report .rsum{font-size:11px; font-weight:700; margin-bottom:8px}
+    #report .rteam{margin-bottom:5px; page-break-inside:avoid}
+    #report .rteam b{font-size:10.5px}
+    #report .rline{margin-left:10px}
+  }
 </style>
 </head>
 <body>
@@ -234,6 +246,7 @@
     <input type="text" id="q" placeholder="ARG10 · FWC5 · bosnia…" autocomplete="off" autocapitalize="characters" inputmode="text">
     <div class="sugs" id="sugs" style="display:none"></div>
     <div id="teamview"></div>
+    <div class="actionbar" id="result"></div>
     <div id="home"></div>
   </section>
 
@@ -268,7 +281,6 @@
   </section>
 </div>
 
-<div class="actionbar" id="result"></div>
 <nav class="tabs">
   <button data-t="buscar" class="on"><span class="n">🔍</span>Buscar</button>
   <button data-t="repes"><span class="n" id="tabRepes">0</span>Repes</button>
@@ -276,6 +288,7 @@
   <button data-t="equipos"><span class="n">🏳️</span>Equipos</button>
 </nav>
 <div class="toast" id="toast"></div>
+<div id="report"></div>
 
 <script>
 'use strict';
@@ -332,9 +345,10 @@ const NATIONS = [
   {c:'GHA',es:'Ghana',en:'Ghana',g:'L',p:102},
   {c:'PAN',es:'Panamá',en:'Panama',g:'L',p:104},
 ];
-// Secciones especiales: FWC 1–19 (páginas de inicio) y CC 1–14
+// Secciones especiales: FWC 00 + 1–19 (con la 00 única suman las 980 oficiales)
+// y CC 1–14 (extras Coca-Cola, fuera del total oficial)
 const SPECIALS = [
-  {c:'FWC',es:'Especiales FWC',en:'FIFA World Cup',max:19,z:false,special:true,p:2},
+  {c:'FWC',es:'Especiales FWC',en:'FIFA World Cup',max:19,z:true,special:true,p:2},
   {c:'CC', es:'Especiales CC', en:'CC',            max:14,z:false,special:true},
 ];
 const DEF_MAX = 20;      // los equipos van 1..20 (editable con ✎ si difiere)
@@ -370,12 +384,13 @@ function nameOf(tc, n){ return (NAMES[tc]||{})[n] || ''; }
 const LS_KEY = 'panini2026';
 
 // ── Estado ─────────────────────────────────────────────────
-let db = {counts:{}, custom:[], pages:{}, sizes:{}, horiz:false};
+let db = {counts:{}, custom:[], pages:{}, sizes:{}, horiz:true};
 let storageOk = true;
 try{
   const raw = localStorage.getItem(LS_KEY);
   if(raw) db = Object.assign(db, JSON.parse(raw));
   if(!db.sizes) db.sizes = {};
+  if(!db.horizSet) db.horiz = true;   // horizontal por defecto salvo elección explícita
   localStorage.setItem('__t','1'); localStorage.removeItem('__t');
 }catch(e){ storageOk = false; }
 
@@ -438,9 +453,12 @@ function renderStats(){
   $('layBtn').textContent = db.horiz ? '⬍' : '⬌';
 }
 
-// Barra fija: figurita seleccionada + botones
+// Barra: figurita seleccionada + botones (oculta en inicio)
 function renderResult(){
   const el = $('result');
+  const idle = !selTeam && !selCode;
+  el.style.display = idle ? 'none' : 'flex';
+  if(idle){ el.innerHTML=''; return; }
   if(!selCode){
     el.innerHTML = '<div class="ab-chip none">Tocá un casillero o buscá un código</div>'
       + '<button class="ab-btn primary" disabled>＋1</button>'
@@ -470,13 +488,9 @@ function renderHome(){
     .concat((db.custom||[]).map(x => Array.isArray(x) ? {c:x[0],es:x[1],en:x[1]} : x));
   const btns = all.map(x=>{
     const full = team(x.c) || x;
-    const list = nums(full);
-    let done=0;
-    for(const n of list) if(cnt(codeOf(full.c,n))>0) done++;
     return '<button class="tbtn" onclick="goTeam(\''+full.c+'\')">'
       + (ISO[full.c] ? flagHtml(full.c) : '🏆')
-      + '<span class="tn">'+full.es+'</span>'
-      + '<small>'+done+'/'+list.length+'</small></button>';
+      + '<span>'+full.c+'</span></button>';
   }).join('');
   el.innerHTML = '<div class="statgrid">'
     + '<div class="stat ok"><div class="v">'+t.have+'</div><div class="l">Pegadas</div></div>'
@@ -485,14 +499,17 @@ function renderHome(){
     + '</div>'
     + '<div class="pbar"><i style="width:'+pct+'%"></i></div>'
     + '<div class="plabel">'+pct+'% del álbum ('+t.have+'/'+t.total+')</div>'
-    + '<h2>Selecciones</h2><div class="teambtns">'+btns+'</div>';
+    + '<h2>Selecciones</h2><div class="teambtns">'+btns+'</div>'
+    + '<div class="btn-line"><button onclick="printReport()">🖨 Reporte para imprimir</button></div>';
 }
 
 function slotBtn(t, n, extra){
   const code = codeOf(t.c, n), v = cnt(code);
   const cls = 'slot '+(v>1?'srep':(v===1?'sok':'smiss'))+(code===selCode?' sel':'')+(extra?' '+extra:'');
+  const pn = nameOf(t.c, n);
   return '<button class="'+cls+'" onclick="pick(\''+code+'\')">'
-    + '<span class="sc">'+t.c+'</span><span class="sn">'+(n===0?'00':n)+'</span>'
+    + '<span class="sc">'+t.c+' '+(n===0?'00':n)+'</span><span class="sn">'+(n===0?'00':n)+'</span>'
+    + (pn ? '<span class="pn">'+pn+'</span>' : '')
     + (v>1 ? '<span class="b">+'+(v-1)+'</span>' : (v===1 ? '<span class="tick">✓</span>' : ''))
     + '</button>';
 }
@@ -516,7 +533,7 @@ function renderTeamView(){
       + s(7)+s(8)+s(9)+s(10)
       + '</div><div class="pgn">pág. '+(pg||'?')+'</div></div>';
     const right = '<div class="page"'+style+'><div class="pgrid">'
-      + s(11)+s(12)+slotBtn(t, 13, 'shiny')+s(14)
+      + s(11)+s(12)+s(13)+s(14)
       + s(15)+s(16)+s(17)+s(18)
       + '<div class="gblock"><span class="gt">GRUPO '+t.g+'</span></div>'
       + s(19)+s(20)
@@ -613,8 +630,29 @@ function goTeam(c){
   selTeam = c; selCode = null;
   switchTab('buscar'); $('q').value = c; hideSugs(); renderAll();
 }
-function toggleLayout(){ db.horiz = !db.horiz; save(); renderAll(); }
+function toggleLayout(){ db.horiz = !db.horiz; db.horizSet = true; save(); renderAll(); }
 function goHome(){ selTeam = null; selCode = null; $('q').value=''; hideSugs(); renderAll(); }
+function printReport(){
+  const t = totals();
+  let html = '<h1>Álbum Panini Mundial 2026 — mi estado</h1>'
+    + '<div class="rsum">Pegadas: '+t.have+'/'+t.total+' · Faltan: '+t.miss+' · Repetidas: '+t.reps
+    + ' · '+new Date().toLocaleDateString('es-AR')+'</div>';
+  for(const tm of teams()){
+    const have=[], miss=[], reps=[];
+    for(const n of nums(tm)){
+      const v = cnt(codeOf(tm.c,n)), lbl = (n===0?'00':n);
+      if(v===0) miss.push(lbl);
+      else { have.push(lbl); if(v>1) reps.push(lbl+'(×'+(v-1)+')'); }
+    }
+    html += '<div class="rteam"><b>'+tm.c+' — '+tm.es+'</b>'
+      + '<div class="rline">Tengo ('+have.length+'): '+(have.join(', ')||'—')+'</div>'
+      + '<div class="rline">Faltan ('+miss.length+'): '+(miss.join(', ')||'—')+'</div>'
+      + (reps.length ? '<div class="rline">Repes: '+reps.join(', ')+'</div>' : '')
+      + '</div>';
+  }
+  $('report').innerHTML = html;
+  window.print();
+}
 function editPage(c){
   const p = prompt('¿En qué página del álbum está '+team(c).es+'?', pageOf(c));
   if(p && !isNaN(+p)){ db.pages[c] = +p; save(); renderAll(); }
@@ -678,7 +716,6 @@ $('q').addEventListener('input', e=>{
 function switchTab(name){
   document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.t===name));
   document.querySelectorAll('section').forEach(s=>s.classList.toggle('on', s.id==='sec-'+name));
-  $('result').style.display = name==='buscar' ? 'flex' : 'none';
   window.scrollTo(0,0);
 }
 document.querySelectorAll('.tabs button').forEach(b=>{
@@ -716,7 +753,8 @@ $('impBtn').addEventListener('click', ()=>{
     const obj = JSON.parse($('io').value);
     if(!obj || typeof obj.counts !== 'object') throw 0;
     if(!confirm('Esto reemplaza tus datos actuales. ¿Importar?')) return;
-    db = {counts:obj.counts||{}, custom:obj.custom||[], pages:obj.pages||{}, sizes:obj.sizes||{}, horiz:!!obj.horiz};
+    db = {counts:obj.counts||{}, custom:obj.custom||[], pages:obj.pages||{}, sizes:obj.sizes||{}, horiz:!!obj.horiz, horizSet:!!obj.horizSet};
+    if(!db.horizSet) db.horiz = true;
     save(); renderAll(); toast('Backup importado');
   }catch(e){ toast('El texto pegado no es un backup válido'); }
 });
