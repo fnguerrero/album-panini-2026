@@ -347,7 +347,7 @@
     <div class="card">
       <textarea id="io" rows="3" placeholder="Acá aparece tu backup, o pegá uno para importar" style="font-size:.8rem; font-family:monospace"></textarea>
       <div class="btn-line">
-        <button id="syncBtn">🔗 Link de sync</button>
+        <button id="syncBtn">🔗 Compartir backup</button>
       </div>
       <div class="btn-line">
         <button id="expBtn">Copiar backup</button>
@@ -898,12 +898,12 @@ $('impBtn').addEventListener('click', ()=>{
   }catch(e){ toast('El texto pegado no es un backup válido'); }
 });
 
-// ── Sync entre dispositivos por link (#sync=...) ───────────
+// ── Backup compartible por link (#backup=...) ──────────────
 function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
 function b64d(s){ return decodeURIComponent(escape(atob(s))); }
 $('syncBtn').addEventListener('click', ()=>{
-  const url = location.href.split('#')[0] + '#sync=' + b64e(JSON.stringify(db));
-  const done = ()=>toast('Link copiado: mandalo al otro dispositivo');
+  const url = location.href.split('#')[0] + '#backup=' + b64e(JSON.stringify(db));
+  const done = ()=>toast('Backup por link copiado');
   if(navigator.share){
     navigator.share({title:'Álbum Panini 2026', text:url}).catch(()=>{
       if(navigator.clipboard) navigator.clipboard.writeText(url).then(done);
@@ -913,15 +913,17 @@ $('syncBtn').addEventListener('click', ()=>{
   } else { $('io').value = url; toast('Copialo del cuadro de texto'); }
 });
 (function importFromHash(){
-  if(!location.hash.startsWith('#sync=')) return;
+  const isBackup = location.hash.startsWith('#backup=');
+  const isOldSync = location.hash.startsWith('#sync=');
+  if(!isBackup && !isOldSync) return;
   try{
-    const obj = JSON.parse(b64d(location.hash.slice(6)));
+    const obj = JSON.parse(b64d(location.hash.slice(isBackup ? 8 : 6)));
     if(obj && typeof obj.counts === 'object'){
       const n = Object.keys(obj.counts).length;
-      if(confirm('Este link trae un estado del álbum ('+n+' figuritas cargadas). ¿Importarlo en este dispositivo? Reemplaza lo que haya acá.')){
+      if(confirm('Este link trae un backup del álbum ('+n+' figuritas cargadas). ¿Importarlo en este dispositivo? Reemplaza lo que haya acá.')){
         db = {counts:obj.counts||{}, custom:obj.custom||[], pages:obj.pages||{}, sizes:obj.sizes||{}, horiz:!!obj.horiz, horizSet:!!obj.horizSet};
         if(!db.horizSet) db.horiz = true;
-        save(); toast('Estado importado desde el link');
+        save(); toast('Backup importado desde el link');
       }
     }
   }catch(e){}
