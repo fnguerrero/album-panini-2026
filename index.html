@@ -28,10 +28,16 @@
     -webkit-tap-highlight-color:transparent;
   }
   .wrap{max-width:520px; margin:0 auto; padding:12px 12px 160px}
-  header{display:flex; align-items:baseline; justify-content:space-between; gap:8px; padding:4px 2px 10px; flex-wrap:wrap}
+  header{padding:4px 2px 10px}
+  .hrow{display:flex; align-items:center; justify-content:space-between; gap:8px}
   header h1{font-size:1rem; margin:0; letter-spacing:.02em; white-space:nowrap}
   header h1 span{color:var(--accent)}
-  .stats{font-size:.75rem; color:var(--muted); font-variant-numeric:tabular-nums; text-align:right; flex:1; white-space:nowrap}
+  .hbtns{display:flex; gap:6px}
+  .hbtns button{
+    border:1.5px solid var(--border); background:var(--card); color:var(--accent);
+    border-radius:9px; padding:5px 12px; font-size:1.05rem; font-weight:800; cursor:pointer; line-height:1.2;
+  }
+  .stats{font-size:.75rem; color:var(--muted); font-variant-numeric:tabular-nums; margin-top:4px; white-space:nowrap}
   .stats b{color:var(--text)}
 
   .tabs{
@@ -106,6 +112,8 @@
   .ab-chip.ok{background:var(--ok-bg); color:var(--ok)}
   .ab-chip.rep{background:var(--rep-bg); color:var(--rep)}
   .ab-chip.none{background:var(--chip); color:var(--muted); font-weight:600; font-size:.85rem}
+  .ab-chip{flex-wrap:wrap}
+  .ab-chip .pname{width:100%; text-align:center; font-size:.72rem; font-weight:600; opacity:.85; line-height:1.1}
   .ab-btn{
     padding:11px 16px; border-radius:10px; font-weight:800; font-size:1rem; cursor:pointer;
     border:1.5px solid var(--border); background:var(--card); color:var(--text);
@@ -157,9 +165,6 @@
   .gblock{grid-column:span 2; background:rgba(0,0,0,.28); border-radius:9px; display:flex; align-items:center; justify-content:center}
   .gblock .gt{font-weight:900; font-style:italic; font-size:1rem; letter-spacing:.08em}
   .spread.horiz .gblock .gt{font-size:.62rem}
-  .metabar{display:flex; justify-content:flex-end; gap:14px; margin-top:8px; font-size:.78rem; color:var(--muted); font-variant-numeric:tabular-nums; flex-wrap:wrap}
-  .metabar span{cursor:pointer}
-  .metabar .lay{color:var(--accent); font-weight:700}
 
   /* Fallback grilla uniforme (FWC / CC / custom) */
   .album{
@@ -214,7 +219,13 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>⚽ <span>Mundial 2026</span></h1>
+    <div class="hrow">
+      <h1>⚽ <span>Mundial 2026</span></h1>
+      <div class="hbtns">
+        <button id="homeBtn" title="Inicio">⌂</button>
+        <button id="layBtn" title="Cambiar vista">⬌</button>
+      </div>
+    </div>
     <div class="stats" id="stats"></div>
   </header>
 
@@ -351,6 +362,11 @@ function flagHtml(c, big){
   if(!iso) return '';
   return '<img class="fl'+(big?' big':'')+'" src="https://flagcdn.com/'+(big?'w80':'w40')+'/'+iso+'.png" alt="" onerror="this.style.display=\'none\'">';
 }
+// Nombres de jugadores por figurita (se completan con fotos del checklist)
+const NAMES = {
+  KSA:{2:'Nawaf Alaqidi',4:'Saud Abdulhamid',6:'Jehad Thikri',9:'Musab Aljuwayr',10:'Ziyad Aljohani',15:'Marwan Alsahafi'}
+};
+function nameOf(tc, n){ return (NAMES[tc]||{})[n] || ''; }
 const LS_KEY = 'panini2026';
 
 // ── Estado ─────────────────────────────────────────────────
@@ -419,6 +435,7 @@ function renderStats(){
   $('stats').innerHTML = 'Pegadas <b>'+t.have+'</b>/'+t.total+' · Faltan <b>'+t.miss+'</b> · Repes <b>'+t.reps+'</b>';
   $('tabRepes').textContent = t.reps;
   $('tabFaltan').textContent = t.miss;
+  $('layBtn').textContent = db.horiz ? '⬍' : '⬌';
 }
 
 // Barra fija: figurita seleccionada + botones
@@ -432,7 +449,10 @@ function renderResult(){
     const v = cnt(selCode);
     const cls = v===0 ? 'miss' : (v===1 ? 'ok' : 'rep');
     const verdict = v===0 ? '❌ FALTA' : (v===1 ? '✅ TENGO' : '🔁 REPE ×'+(v-1));
-    el.innerHTML = '<div class="ab-chip '+cls+'"><b>'+selCode+'</b><span>'+verdict+'</span></div>'
+    const num = selTeam ? parseInt(selCode.slice(selTeam.length), 10) : NaN;
+    const pn = selTeam ? nameOf(selTeam, num) : '';
+    el.innerHTML = '<div class="ab-chip '+cls+'"><b>'+selCode+'</b><span>'+verdict+'</span>'
+      + (pn ? '<span class="pname">'+pn+'</span>' : '') + '</div>'
       + '<button class="ab-btn primary" onclick="plus()">＋1</button>'
       + '<button class="ab-btn" onclick="minus()"'+(v===0?' disabled':'')+'>−1</button>';
   }
@@ -481,16 +501,8 @@ function renderTeamView(){
   const t = selTeam ? team(selTeam) : null;
   if(!t){ el.innerHTML=''; return; }
   const pg = pageOf(t.c), list = nums(t);
-  let done=0;
-  for(const n of list) if(cnt(codeOf(t.c,n))>0) done++;
   const tc = COLORS[t.c] || '';
   const style = tc ? ' style="--tc:'+tc+'"' : '';
-  const metabar = '<div class="metabar">'
-    + '<span class="lay" onclick="goHome()">⌂ Inicio</span>'
-    + '<span class="lay" onclick="toggleLayout()">'+(db.horiz?'⬍ Ver apiladas':'⬌ Ver lado a lado')+'</span>'
-    + '<span onclick="editPage(\''+t.c+'\')">Pág. '+(pg||'?')+' ✎</span>'
-    + '<span onclick="editMax(\''+t.c+'\')">1–'+maxOf(t)+' ✎</span>'
-    + '<span>'+done+'/'+list.length+'</span></div>';
 
   // Distribución real del álbum (doble página) para selecciones con 1–20
   if(t.g && maxOf(t)===20 && !hasZero(t)){
@@ -509,7 +521,7 @@ function renderTeamView(){
       + '<div class="gblock"><span class="gt">GRUPO '+t.g+'</span></div>'
       + s(19)+s(20)
       + '</div><div class="pgn">pág. '+(pg?pg+1:'?')+'</div></div>';
-    el.innerHTML = '<div class="spread'+(db.horiz?' horiz':'')+'">'+left+right+'</div>'+metabar;
+    el.innerHTML = '<div class="spread'+(db.horiz?' horiz':'')+'">'+left+right+'</div>';
     return;
   }
 
@@ -521,8 +533,7 @@ function renderTeamView(){
     + (t.special ? '' : '<div class="we-pre">WE ARE</div>')
     + '<div class="we">'+t.en.toUpperCase()+'</div>'
     + flagHtml(t.c, true) + '</div>'
-    + '<div class="slots">'+slots+'</div></div>'
-    + metabar;
+    + '<div class="slots">'+slots+'</div></div>';
 }
 
 function renderRepes(){
@@ -674,6 +685,8 @@ document.querySelectorAll('.tabs button').forEach(b=>{
   b.addEventListener('click', ()=>{ switchTab(b.dataset.t); renderAll(); });
 });
 $('faltanTeam').addEventListener('change', renderFaltan);
+$('homeBtn').addEventListener('click', ()=>{ switchTab('buscar'); goHome(); });
+$('layBtn').addEventListener('click', toggleLayout);
 
 // ── Equipos custom ─────────────────────────────────────────
 $('addTeam').addEventListener('click', ()=>{
