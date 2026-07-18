@@ -884,15 +884,17 @@ $('q').addEventListener('input', e=>{
 
 // ── Tabs ───────────────────────────────────────────────────
 function switchTab(name){
+  const sectionName = name === 'home' ? 'buscar' : name;
   document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.t===name));
-  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on', s.id==='sec-'+name));
+  $('bottomHomeBtn').classList.toggle('on', name === 'home');
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on', s.id==='sec-'+sectionName));
   window.scrollTo(0,0);
 }
 document.querySelectorAll('.tabs button[data-t]').forEach(b=>{
   b.addEventListener('click', ()=>{ switchTab(b.dataset.t); renderAll(); });
 });
 $('faltanTeam').addEventListener('change', renderFaltan);
-$('bottomHomeBtn').addEventListener('click', ()=>{ switchTab('buscar'); goHome(); });
+$('bottomHomeBtn').addEventListener('click', ()=>{ switchTab('home'); goHome(); });
 $('layBtn').addEventListener('click', toggleLayout);
 $('cfgBtn').addEventListener('click', ()=>{ switchTab('config'); renderAll(); });
 
