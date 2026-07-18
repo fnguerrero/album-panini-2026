@@ -251,6 +251,9 @@
   }
   .album .we{font-size:1.45rem}
   .slots{display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin-top:14px}
+  .slots .slot{min-height:76px; padding-top:18px}
+  .slots .slot .sc{top:9px}
+  .slots .slot .sn{margin-top:6px}
 
   .row{
     display:flex; align-items:center; gap:10px; padding:10px 4px;
@@ -456,7 +459,7 @@ const NATIONS = [
 // y CC 1–14 (extras Coca-Cola, fuera del total oficial)
 const SPECIALS = [
   {c:'FWC',es:'Especiales FWC',en:'FIFA World Cup',max:19,z:true,special:true,p:2},
-  {c:'CC', es:'Especiales CC', en:'CC',            max:14,z:false,special:true},
+  {c:'CC', es:'Especiales CC', en:'CC',            max:14,z:false,special:true,p:112},
 ];
 const DEF_MAX = 20;      // los equipos van 1..20 (editable con ✎ si difiere)
 // Banderas (imagen) y color de página por equipo
