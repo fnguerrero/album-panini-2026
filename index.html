@@ -128,13 +128,23 @@
   .spread{display:flex; flex-direction:column; gap:10px; margin-top:10px}
   .spread.horiz{flex-direction:row; gap:6px}
   .page{
-    border-radius:12px; padding:10px; color:#fff;
-    background:linear-gradient(150deg,#17934e,#0b5e50);
-    background:linear-gradient(150deg,var(--tc,#17934e), color-mix(in srgb, var(--tc,#0b5e50) 50%, black));
+    border-radius:12px; padding:10px; color:#fff; position:relative;
+    background:linear-gradient(160deg,#1fae5e,#0d7247);
+    background:linear-gradient(160deg,
+      color-mix(in srgb, var(--tc,#17934e) 78%, white) 0%,
+      var(--tc,#17934e) 42%,
+      color-mix(in srgb, var(--tc,#0b5e50) 78%, black) 100%);
   }
-  .spread.horiz .page{flex:1; padding:6px}
+  .page.pgleft{padding-left:17px}
+  .road{
+    position:absolute; left:3px; top:10px; writing-mode:vertical-rl; transform:rotate(180deg);
+    font-size:.48rem; font-weight:800; font-style:italic; letter-spacing:.1em; opacity:.75; white-space:nowrap;
+  }
+  .spread.horiz .page{flex:1; padding:5px}
+  .spread.horiz .page.pgleft{padding-left:13px}
+  .spread.horiz .road{font-size:.38rem; left:2px; top:6px}
   .pgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; grid-auto-rows:minmax(74px,auto)}
-  .spread.horiz .pgrid{gap:5px; grid-auto-rows:minmax(50px,auto)}
+  .spread.horiz .pgrid{gap:4px; grid-auto-rows:minmax(58px,auto)}
   .tblock{grid-column:span 2; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:2px}
   .we-pre{font-size:.95rem; font-weight:900; font-style:italic; letter-spacing:.22em; line-height:1; text-shadow:1px 1px 0 rgba(0,0,0,.25)}
   .we{font-size:1.1rem; font-weight:900; font-style:italic; letter-spacing:.01em; line-height:1.1; text-wrap:balance; text-transform:uppercase; text-shadow:1px 1px 0 rgba(0,0,0,.25)}
@@ -145,7 +155,7 @@
   .spread.horiz .pgn{font-size:.58rem}
 
   .slot{position:relative; border:0; border-radius:9px; padding:12px 2px 10px; display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; font-family:inherit}
-  .spread.horiz .slot{padding:6px 1px 5px; gap:1px; border-radius:6px}
+  .spread.horiz .slot{padding:7px 1px 6px; gap:1px; border-radius:6px}
   .slot .sc{font-size:.6rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase}
   .slot .sn{font-size:1.55rem; font-weight:900; font-style:italic; line-height:1; font-variant-numeric:tabular-nums}
   .slot .pn{
@@ -154,23 +164,29 @@
     opacity:.85; padding:0 2px; margin-top:1px;
   }
   .spread.horiz .slot .pn{display:none}
-  .spread.horiz .slot .sc{font-size:.46rem}
-  .spread.horiz .slot .sn{font-size:.95rem}
-  .slot.smiss{background:#f7f3e8; color:#a89f8d; box-shadow:inset 0 0 0 2px rgba(0,0,0,.05)}
+  .spread.horiz .slot .sc{font-size:.48rem}
+  .spread.horiz .slot .sn{font-size:1.15rem}
+  .slot.smiss{background:#ffffff; color:#a9b6c4; box-shadow:inset 0 0 0 2px rgba(30,60,90,.08)}
   .slot.sok{background:linear-gradient(160deg,#0e4d2c,#186b3c); color:#fff; box-shadow:inset 0 0 0 2px rgba(255,255,255,.28)}
   .slot.srep{background:linear-gradient(160deg,#3b2a6e,#6242a8); color:#fff}
   .slot.sel{outline:3px solid #ffd757}
   .slot .b{position:absolute; top:-7px; right:-6px; background:#ffd757; color:#4a3a10; border-radius:9px; font-size:.68rem; padding:1px 5px; font-weight:800}
   .slot .tick{position:absolute; top:4px; right:6px; font-size:.7rem; opacity:.9}
-  .gblock{grid-column:span 2; background:rgba(0,0,0,.28); border-radius:9px; display:flex; align-items:center; justify-content:center}
+  .gblock{grid-column:span 2; background:rgba(0,0,0,.28); border-radius:9px; display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center; padding:4px}
   .gblock .gt{font-weight:900; font-style:italic; font-size:1rem; letter-spacing:.08em}
+  .gblock .gfl{display:flex; gap:5px}
+  .gblock .gfl .fl{width:19px; cursor:pointer}
   .spread.horiz .gblock .gt{font-size:.62rem}
+  .spread.horiz .gblock .gfl .fl{width:14px}
 
   /* Fallback grilla uniforme (FWC / CC / custom) */
   .album{
     border-radius:14px; padding:14px 12px; margin-top:12px; color:#fff;
-    background:linear-gradient(150deg,#17934e,#0b5e50);
-    background:linear-gradient(150deg,var(--tc,#17934e), color-mix(in srgb, var(--tc,#0b5e50) 50%, black));
+    background:linear-gradient(160deg,#1fae5e,#0d7247);
+    background:linear-gradient(160deg,
+      color-mix(in srgb, var(--tc,#17934e) 78%, white) 0%,
+      var(--tc,#17934e) 42%,
+      color-mix(in srgb, var(--tc,#0b5e50) 78%, black) 100%);
   }
   .album .we{font-size:1.45rem}
   .slots{display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin-top:14px}
@@ -371,7 +387,7 @@ const COLORS = {
   CIV:'#E8720C',ECU:'#C79200',NED:'#E86A10',JPN:'#1A2C5B',SWE:'#005293',TUN:'#E70013',
   BEL:'#C8102E',EGY:'#A31621',IRN:'#239F40',NZL:'#1F1F1F',ESP:'#AA151B',CPV:'#003893',
   KSA:'#006C35',URU:'#3E8FC1',FRA:'#002395',SEN:'#00853F',IRQ:'#2E7D32',NOR:'#BA0C2F',
-  ARG:'#4A90C4',ALG:'#006233',AUT:'#ED2939',JOR:'#CE1126',POR:'#A4161A',COD:'#0085CA',
+  ARG:'#4FA7DC',ALG:'#006233',AUT:'#ED2939',JOR:'#CE1126',POR:'#A4161A',COD:'#0085CA',
   UZB:'#0099B5',COL:'#B8860B',ENG:'#33539C',CRO:'#D81E2C',GHA:'#006B3F',PAN:'#DA121A'
 };
 function flagHtml(c, big){
@@ -527,7 +543,9 @@ function renderTeamView(){
   // Distribución real del álbum (doble página) para selecciones con 1–20
   if(t.g && maxOf(t)===20 && !hasZero(t)){
     const s = n => slotBtn(t, n);
-    const left = '<div class="page"'+style+'><div class="pgrid">'
+    const left = '<div class="page pgleft"'+style+'>'
+      + '<div class="road">ROAD TO FIFA WORLD CUP 26™</div>'
+      + '<div class="pgrid">'
       + '<div class="tblock"><div class="we-pre">WE ARE</div>'
       + '<div class="we">'+t.en.toUpperCase()+'</div>'
       + flagHtml(t.c, true) + '</div>'
@@ -535,10 +553,12 @@ function renderTeamView(){
       + s(3)+s(4)+s(5)+s(6)
       + s(7)+s(8)+s(9)+s(10)
       + '</div><div class="pgn">pág. '+(pg||'?')+'</div></div>';
+    const gTeams = teams().filter(x=>x.g===t.g);
+    const gflags = gTeams.map(x=>'<img class="fl" src="https://flagcdn.com/w40/'+(ISO[x.c]||'')+'.png" alt="'+x.c+'" title="'+x.es+'" onclick="goTeam(\''+x.c+'\')" onerror="this.style.display=\'none\'">').join('');
     const right = '<div class="page"'+style+'><div class="pgrid">'
       + s(11)+s(12)+s(13)+s(14)
       + s(15)+s(16)+s(17)+s(18)
-      + '<div class="gblock"><span class="gt">GRUPO '+t.g+'</span></div>'
+      + '<div class="gblock"><span class="gt">GRUPO '+t.g+'</span><span class="gfl">'+gflags+'</span></div>'
       + s(19)+s(20)
       + '</div><div class="pgn">pág. '+(pg?pg+1:'?')+'</div></div>';
     el.innerHTML = '<div class="spread'+(db.horiz?' horiz':'')+'">'+left+right+'</div>';
