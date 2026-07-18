@@ -184,12 +184,13 @@
   .slot.sel{outline:3px solid #ffd757}
   .slot .b{position:absolute; top:-7px; right:-6px; background:#ffd757; color:#4a3a10; border-radius:9px; font-size:.68rem; padding:1px 5px; font-weight:800}
   .slot .tick{position:absolute; top:4px; right:6px; font-size:.7rem; opacity:.9}
-  .gblock{grid-column:span 2; background:rgba(0,0,0,.28); border-radius:9px; display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center; padding:4px}
-  .gblock .gt{font-weight:900; font-style:italic; font-size:1rem; letter-spacing:.08em}
-  .gblock .gfl{display:flex; gap:5px}
-  .gblock .gfl .fl{width:19px; cursor:pointer}
-  .spread.horiz .gblock .gt{font-size:.62rem}
-  .spread.horiz .gblock .gfl .fl{width:14px}
+  .slot.wide{grid-column:span 2}
+  .gblock{background:rgba(0,0,0,.28); border-radius:9px; display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center; padding:4px 2px}
+  .gblock .gt{font-weight:900; font-style:italic; font-size:.78rem; letter-spacing:.06em}
+  .gblock .gfl{display:grid; grid-template-columns:1fr 1fr; gap:3px; justify-items:center}
+  .gblock .gfl .fl{width:17px; cursor:pointer}
+  .spread.horiz .gblock .gt{font-size:.56rem}
+  .spread.horiz .gblock .gfl .fl{width:12px}
 
   /* Fallback grilla uniforme (FWC / CC / custom) */
   .album{
@@ -592,10 +593,10 @@ function renderTeamView(){
     const gTeams = teams().filter(x=>x.g===t.g);
     const gflags = gTeams.map(x=>'<img class="fl" src="https://flagcdn.com/w40/'+(ISO[x.c]||'')+'.png" alt="'+x.c+'" title="'+x.es+'" onclick="goTeam(\''+x.c+'\')" onerror="this.style.display=\'none\'">').join('');
     const right = '<div class="page"'+style+'><div class="pgrid">'
-      + s(11)+s(12)+s(13)+s(14)
-      + s(15)+s(16)+s(17)+s(18)
+      + s(11)+s(12)+slotBtn(t, 13, 'wide')
+      + s(14)+s(15)+s(16)+s(17)
       + '<div class="gblock"><span class="gt">GRUPO '+t.g+'</span><span class="gfl">'+gflags+'</span></div>'
-      + s(19)+s(20)
+      + s(18)+s(19)+s(20)
       + '</div><div class="pgn">pág. '+(pg?pg+1:'?')+'</div></div>';
     el.innerHTML = '<div class="spread'+(db.horiz?' horiz':'')+'">'+left+right+'</div>';
     return;
