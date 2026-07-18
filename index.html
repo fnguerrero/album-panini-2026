@@ -202,6 +202,7 @@
   .slot.sok{background:linear-gradient(160deg,#0e4d2c,#186b3c); color:#fff; box-shadow:inset 0 0 0 2px rgba(255,255,255,.28)}
   .slot.srep{background:linear-gradient(160deg,#3b2a6e,#6242a8); color:#fff}
   .slot.sel{outline:3px solid #ffd757}
+  .slot.msel{outline:3px solid #ffd757; outline-offset:-2px; box-shadow:0 0 0 4px rgba(255,215,87,.25)}
   .slot.shiny.smiss{background:linear-gradient(160deg,#ead9f7,#cbaae9); color:#7a4ba8}
   .slot .b{position:absolute; top:-7px; right:-6px; background:#ffd757; color:#4a3a10; border-radius:9px; font-size:.68rem; padding:1px 5px; font-weight:800}
   .slot .tick{position:absolute; top:4px; right:6px; font-size:.7rem; opacity:.9}
@@ -568,6 +569,7 @@ function norm(s){ return s.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
 
 // ── Estado UI ──────────────────────────────────────────────
 let selCode = null, selTeam = null;
+let multiMode = false, multiCodes = new Set(), longPressTimer = null, longPressFired = false;
 
 // ── Render ─────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -593,10 +595,18 @@ function renderStats(){
 // Barra fija: figurita seleccionada + botones
 function renderResult(){
   const el = $('result');
-  const idle = !selTeam && !selCode;
+  const selectedMany = multiCodes.size;
+  const idle = !selTeam && !selCode && !selectedMany;
   el.style.display = idle ? 'none' : 'flex';
   if(idle){ el.innerHTML=''; return; }
-  if(!selCode){
+  if(selectedMany){
+    const codes = [...multiCodes];
+    const canMinus = codes.some(c => cnt(c)>0);
+    el.innerHTML = '<div class="ab-chip none"><b>'+selectedMany+' seleccionadas</b><span>＋1 / −1 aplica a todas</span></div>'
+      + '<button class="ab-btn primary" onclick="plus()">＋1</button>'
+      + '<button class="ab-btn" onclick="minus()"'+(canMinus?'':' disabled')+'>−1</button>'
+      + '<button class="ab-btn" onclick="clearMulti()">Cancelar</button>';
+  } else if(!selCode){
     el.innerHTML = '<div class="ab-chip none">Tocá un casillero o buscá un código</div>'
       + '<button class="ab-btn primary" disabled>＋1</button>'
       + '<button class="ab-btn" disabled>−1</button>';
@@ -641,9 +651,9 @@ function renderHome(){
 
 function slotBtn(t, n, extra){
   const code = codeOf(t.c, n), v = cnt(code);
-  const cls = 'slot '+(v>1?'srep':(v===1?'sok':'smiss'))+(code===selCode?' sel':'')+(extra?' '+extra:'');
+  const cls = 'slot '+(v>1?'srep':(v===1?'sok':'smiss'))+(code===selCode?' sel':'')+(multiCodes.has(code)?' msel':'')+(extra?' '+extra:'');
   const pn = nameOf(t.c, n);
-  return '<button class="'+cls+'" onclick="pick(\''+code+'\')">'
+  return '<button class="'+cls+'" onpointerdown="slotPressStart(\''+code+'\')" onpointerup="slotPressEnd()" onpointercancel="slotPressEnd()" onpointerleave="slotPressEnd()" onclick="slotClick(\''+code+'\')">'
     + '<span class="sc">'+t.c+'</span><span class="sn">'+(n===0?'00':n)+'</span>'
     + (pn ? '<span class="pn">'+pn+'</span>' : '')
     + (v>1 ? '<span class="b">+'+(v-1)+'</span>' : (v===1 ? '<span class="tick">✓</span>' : ''))
@@ -763,20 +773,70 @@ function toast(msg){
   const t = $('toast'); t.textContent = msg; t.classList.add('show');
   clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 1400);
 }
-function plus(){ if(selCode){ setCnt(selCode, cnt(selCode)+1); toast(selCode+' → '+(cnt(selCode)===1?'¡la tenés!':'repe ×'+(cnt(selCode)-1))); } }
+function plus(){
+  if(multiCodes.size){
+    const codes = [...multiCodes];
+    for(const code of codes) setCntRaw(code, cnt(code)+1);
+    save(); renderAll();
+    toast(codes.length+' figuritas sumadas');
+    return;
+  }
+  if(selCode){ setCnt(selCode, cnt(selCode)+1); toast(selCode+' → '+(cnt(selCode)===1?'¡la tenés!':'repe ×'+(cnt(selCode)-1))); }
+}
 function minus(){
+  if(multiCodes.size){
+    const codes = [...multiCodes].filter(code => cnt(code)>0);
+    for(const code of codes) setCntRaw(code, cnt(code)-1);
+    save(); renderAll();
+    toast(codes.length+' figuritas restadas');
+    return;
+  }
   if(!selCode) return;
   const was = cnt(selCode);
   setCnt(selCode, was-1);
   toast(was>1 ? selCode+': repe entregada' : selCode+': marcada como faltante');
 }
 function trade(code){ setCnt(code, cnt(code)-1); toast(code+': repe entregada'); }
-function pick(code){ selCode = code; renderResult(); renderTeamView(); }
+function setCntRaw(code, v){
+  v = Math.max(0, v);
+  if(v) db.counts[code] = v; else delete db.counts[code];
+}
+function pick(code){ clearMulti(false); selCode = code; renderResult(); renderTeamView(); }
+function slotClick(code){
+  if(longPressFired){ longPressFired = false; return; }
+  if(multiMode){ toggleMulti(code); return; }
+  pick(code);
+}
+function slotPressStart(code){
+  longPressFired = false;
+  clearTimeout(longPressTimer);
+  longPressTimer = setTimeout(()=>{
+    longPressFired = true;
+    multiMode = true;
+    selCode = null;
+    toggleMulti(code);
+    toast('Selección múltiple');
+  }, 450);
+}
+function slotPressEnd(){ clearTimeout(longPressTimer); }
+function toggleMulti(code){
+  if(multiCodes.has(code)) multiCodes.delete(code);
+  else multiCodes.add(code);
+  if(!multiCodes.size) multiMode = false;
+  renderResult(); renderTeamView();
+}
+function clearMulti(render=true){
+  multiMode = false;
+  multiCodes.clear();
+  if(render){ renderResult(); renderTeamView(); }
+}
 function goCode(code, tc){
+  clearMulti(false);
   selCode = code; selTeam = tc;
   switchTab('buscar'); $('q').value = code; hideSugs(); renderAll();
 }
 function goTeam(c){
+  clearMulti(false);
   selTeam = c; selCode = null;
   switchTab('buscar'); $('q').value = c; hideSugs(); renderAll();
 }
@@ -800,7 +860,7 @@ function bindTeamSwipe(){
   }, {passive:true});
 }
 function toggleLayout(){ db.horiz = !db.horiz; db.horizSet = true; save(); renderAll(); }
-function goHome(){ selTeam = null; selCode = null; $('q').value=''; hideSugs(); renderAll(); }
+function goHome(){ clearMulti(false); selTeam = null; selCode = null; $('q').value=''; hideSugs(); renderAll(); }
 function printReport(){
   const t = totals();
   let html = '<h1>Álbum Panini Mundial 2026 — mi estado</h1>'
@@ -868,6 +928,7 @@ function resolveCode(letters, numStr){
   return null;
 }
 $('q').addEventListener('input', e=>{
+  clearMulti(false);
   const raw = e.target.value.replace(/[\s\-\.]/g,'');
   const m = norm(raw).match(/^([A-Z]{2,4})(\d{1,3})$/);
   if(m){
