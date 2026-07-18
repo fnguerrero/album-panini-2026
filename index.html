@@ -271,6 +271,7 @@
     flex:1; padding:11px 6px; border-radius:10px; border:1.5px solid var(--border);
     background:var(--card); color:var(--text); font-weight:600; font-size:.9rem; cursor:pointer;
   }
+  #resetBtn.armed{background:var(--miss); border-color:var(--miss); color:#fff}
   .empty{text-align:center; color:var(--muted); padding:26px 10px; font-size:.95rem}
   .toast{
     position:fixed; bottom:84px; left:50%; transform:translateX(-50%);
@@ -858,10 +859,26 @@ $('themeSel').addEventListener('change', e=>{
   if(!db.theme) delete db.theme;
   save(); applyTheme();
 });
+let resetArmed = false, resetTimer = null;
 $('resetBtn').addEventListener('click', ()=>{
-  const t = totals();
-  if(!confirm('¿Resetear el álbum? Se borran las '+t.have+' figuritas cargadas y las '+t.reps+' repes.')) return;
-  if(!confirm('Última confirmación: esto NO se puede deshacer. ¿Borrar todo igual?')) return;
+  const btn = $('resetBtn');
+  if(!resetArmed){
+    resetArmed = true;
+    btn.classList.add('armed');
+    btn.textContent = 'Confirmar reset';
+    toast('Tocá otra vez para borrar el álbum');
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(()=>{
+      resetArmed = false;
+      btn.classList.remove('armed');
+      btn.textContent = '🗑 Resetear álbum';
+    }, 5000);
+    return;
+  }
+  clearTimeout(resetTimer);
+  resetArmed = false;
+  btn.classList.remove('armed');
+  btn.textContent = '🗑 Resetear álbum';
   db.counts = {};
   save(); renderAll();
   toast('Álbum reseteado');
