@@ -284,13 +284,15 @@
   /* Reporte imprimible */
   #report{display:none}
   @media print{
+    @page{size:A4; margin:7mm}
     body > *:not(#report){display:none !important}
-    #report{display:block !important; color:#000; background:#fff; font-size:10px; line-height:1.4}
-    #report h1{font-size:14px; margin:0 0 2px}
-    #report .rsum{font-size:11px; font-weight:700; margin-bottom:8px}
-    #report .rteam{margin-bottom:5px; page-break-inside:avoid}
-    #report .rteam b{font-size:10.5px}
-    #report .rline{margin-left:10px}
+    #report{display:block !important; color:#000; background:#fff; font-size:7.2px; line-height:1.18}
+    #report h1{font-size:13px; margin:0 0 2px}
+    #report .rsum{font-size:9px; font-weight:700; margin-bottom:5px}
+    #report .rgrid{column-count:3; column-gap:9px}
+    #report .rteam{break-inside:avoid; page-break-inside:avoid; margin-bottom:3px}
+    #report .rteam b{font-size:7.6px}
+    #report .rline{margin-left:0}
   }
 </style>
 
@@ -359,7 +361,6 @@
     <h2>Álbum</h2>
     <div class="card">
       <div class="btn-line">
-        <button id="addTeam">＋ Agregar equipo</button>
         <button onclick="printReport()">🖨 Reporte</button>
       </div>
     </div>
@@ -756,19 +757,20 @@ function printReport(){
   let html = '<h1>Álbum Panini Mundial 2026 — mi estado</h1>'
     + '<div class="rsum">Pegadas: '+t.have+'/'+t.total+' · Faltan: '+t.miss+' · Repetidas: '+t.reps
     + ' · '+new Date().toLocaleDateString('es-AR')+'</div>';
+  html += '<div class="rgrid">';
   for(const tm of teams()){
-    const have=[], miss=[], reps=[];
+    const miss=[], reps=[];
     for(const n of nums(tm)){
       const v = cnt(codeOf(tm.c,n)), lbl = (n===0?'00':n);
       if(v===0) miss.push(lbl);
-      else { have.push(lbl); if(v>1) reps.push(lbl+'(×'+(v-1)+')'); }
+      else if(v>1) reps.push(lbl+'(×'+(v-1)+')');
     }
     html += '<div class="rteam"><b>'+tm.c+' — '+tm.es+'</b>'
-      + '<div class="rline">Tengo ('+have.length+'): '+(have.join(', ')||'—')+'</div>'
       + '<div class="rline">Faltan ('+miss.length+'): '+(miss.join(', ')||'—')+'</div>'
-      + (reps.length ? '<div class="rline">Repes: '+reps.join(', ')+'</div>' : '')
+      + '<div class="rline">Repes: '+(reps.join(', ')||'—')+'</div>'
       + '</div>';
   }
+  html += '</div>';
   $('report').innerHTML = html;
   window.print();
 }
@@ -863,15 +865,6 @@ $('resetBtn').addEventListener('click', ()=>{
   db.counts = {};
   save(); renderAll();
   toast('Álbum reseteado');
-});
-
-// ── Equipos custom ─────────────────────────────────────────
-$('addTeam').addEventListener('click', ()=>{
-  const code = (prompt('Código del equipo (3 letras, ej. ITA):')||'').toUpperCase().trim();
-  if(!/^[A-Z]{2,4}$/.test(code)) return;
-  if(teamIdx(code)>=0){ toast('Ese código ya existe'); return; }
-  const name = (prompt('Nombre del equipo:')||code).trim();
-  db.custom.push({c:code, es:name, en:name}); save(); renderAll(); toast(name+' agregado');
 });
 
 // ── Backup ─────────────────────────────────────────────────
