@@ -313,8 +313,6 @@
     <div class="hrow">
       <h1>⚽ <span>Mundial 2026</span></h1>
       <div class="hbtns">
-        <button id="homeBtn" title="Inicio">⌂</button>
-        <button id="layBtn" title="Cambiar vista">⬌</button>
         <button id="cfgBtn" title="Configuración">⚙</button>
       </div>
     </div>
@@ -356,6 +354,9 @@
         <option value="light">Tema: claro</option>
         <option value="dark">Tema: oscuro</option>
       </select>
+      <div class="btn-line">
+        <button id="layBtn">Cambiar vista</button>
+      </div>
     </div>
     <h2>Datos</h2>
     <div class="card">
@@ -387,6 +388,7 @@
 </div>
 
 <nav class="tabs">
+  <button id="bottomHomeBtn"><span class="n">⌂</span>Inicio</button>
   <button data-t="buscar" class="on"><span class="n">🔍</span>Buscar</button>
   <button data-t="repes"><span class="n" id="tabRepes">0</span>Repetidas</button>
   <button data-t="faltan"><span class="n" id="tabFaltan">0</span>Faltan</button>
@@ -582,7 +584,7 @@ function renderStats(){
   $('stats').innerHTML = '';
   $('tabRepes').textContent = t.reps;
   $('tabFaltan').textContent = t.miss;
-  $('layBtn').textContent = db.horiz ? '⬍' : '⬌';
+  $('layBtn').textContent = db.horiz ? 'Vista: doble página horizontal' : 'Vista: páginas apiladas';
 }
 
 // Barra fija: figurita seleccionada + botones
@@ -883,11 +885,11 @@ function switchTab(name){
   document.querySelectorAll('section').forEach(s=>s.classList.toggle('on', s.id==='sec-'+name));
   window.scrollTo(0,0);
 }
-document.querySelectorAll('.tabs button').forEach(b=>{
+document.querySelectorAll('.tabs button[data-t]').forEach(b=>{
   b.addEventListener('click', ()=>{ switchTab(b.dataset.t); renderAll(); });
 });
 $('faltanTeam').addEventListener('change', renderFaltan);
-$('homeBtn').addEventListener('click', ()=>{ switchTab('buscar'); goHome(); });
+$('bottomHomeBtn').addEventListener('click', ()=>{ switchTab('buscar'); goHome(); });
 $('layBtn').addEventListener('click', toggleLayout);
 $('cfgBtn').addEventListener('click', ()=>{ switchTab('config'); renderAll(); });
 
