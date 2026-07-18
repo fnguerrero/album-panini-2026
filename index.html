@@ -123,6 +123,23 @@
   .gchip{border:0; border-radius:8px; padding:6px 9px; font-weight:800; font-size:.85rem; background:rgba(255,255,255,.92); color:#0d5c3a; cursor:pointer}
   .gchip.cur{background:#ffd757; color:#4a3a10}
 
+  /* Doble página estilo álbum */
+  .spread{display:flex; flex-direction:column; gap:10px; margin-top:10px}
+  .page{background:linear-gradient(150deg,#17934e,#0d7247 60%,#0b5e50); border-radius:12px; padding:10px; color:#fff}
+  .pgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; grid-auto-rows:minmax(74px,auto)}
+  .tblock{grid-column:span 2; display:flex; flex-direction:column; justify-content:center; padding:2px 4px}
+  .tblock .we-pre{font-size:.7rem}
+  .tblock .we{font-size:1.05rem; line-height:1.15}
+  .pgn{text-align:right; font-size:.68rem; opacity:.75; margin-top:6px; font-style:italic}
+  .slot.wide{grid-column:span 2}
+  .slot.shiny.smiss{background:linear-gradient(160deg,#ead9f7,#cbaae9); color:#7a4ba8}
+  .gblock{background:rgba(0,0,0,.28); border-radius:9px; padding:6px 4px; display:flex; flex-direction:column; gap:5px; align-items:center; justify-content:center}
+  .gblock .gt{font-weight:900; font-style:italic; font-size:.72rem; letter-spacing:.06em}
+  .gblock .gflags{display:grid; grid-template-columns:1fr 1fr; gap:3px}
+  .gblock .gchip{padding:3px 5px; font-size:.62rem; border-radius:6px}
+  .metabar{display:flex; justify-content:flex-end; gap:14px; margin-top:8px; font-size:.78rem; color:var(--muted); font-variant-numeric:tabular-nums}
+  .metabar span{cursor:pointer}
+
   .row{
     display:flex; align-items:center; gap:10px; padding:10px 4px;
     border-bottom:1px solid var(--border);
@@ -383,39 +400,59 @@ function renderResult(){
   $('searchHint').style.display = (selCode || selTeam) ? 'none' : '';
 }
 
+function slotBtn(t, n, extra){
+  const code = codeOf(t.c, n), v = cnt(code);
+  const cls = 'slot '+(v>1?'srep':(v===1?'sok':'smiss'))+(code===selCode?' sel':'')+(extra?' '+extra:'');
+  return '<button class="'+cls+'" onclick="pick(\''+code+'\')">'
+    + '<span class="sc">'+t.c+'</span><span class="sn">'+(n===0?'00':n)+'</span>'
+    + (v>1 ? '<span class="b">+'+(v-1)+'</span>' : (v===1 ? '<span class="tick">✓</span>' : ''))
+    + '</button>';
+}
 function renderTeamView(){
   const el = $('teamview');
   const t = selTeam ? team(selTeam) : null;
   if(!t){ el.innerHTML=''; return; }
   const pg = pageOf(t.c), list = nums(t), flag = FLAGS[t.c] || '';
-  let done=0, slots='';
-  for(const n of list){
-    const code = codeOf(t.c, n), v = cnt(code);
-    if(v>0) done++;
-    const cls = 'slot '+(v>1?'srep':(v===1?'sok':'smiss'))+(code===selCode?' sel':'');
-    slots += '<button class="'+cls+'" onclick="pick(\''+code+'\')">'
-      + '<span class="sc">'+t.c+'</span><span class="sn">'+(n===0?'00':n)+'</span>'
-      + (v>1 ? '<span class="b">+'+(v-1)+'</span>' : (v===1 ? '<span class="tick">✓</span>' : ''))
-      + '</button>';
-  }
-  let gb='';
-  if(t.g){
+  let done=0;
+  for(const n of list) if(cnt(codeOf(t.c,n))>0) done++;
+  const metabar = '<div class="metabar">'
+    + '<span onclick="editPage(\''+t.c+'\')">Pág. '+(pg||'?')+' ✎</span>'
+    + '<span onclick="editMax(\''+t.c+'\')">1–'+maxOf(t)+' ✎</span>'
+    + '<span>'+done+'/'+list.length+'</span></div>';
+
+  // Distribución real del álbum (doble página) para selecciones con 1–20
+  if(t.g && maxOf(t)===20 && !hasZero(t)){
+    const s = n => slotBtn(t, n);
     const gTeams = teams().filter(x=>x.g===t.g);
-    gb = '<div class="groupbar"><span class="gt">GRUPO '+t.g+'</span>'
-      + gTeams.map(x=>'<button class="gchip'+(x.c===t.c?' cur':'')+'" onclick="goTeam(\''+x.c+'\')">'
-        + (FLAGS[x.c]?FLAGS[x.c]+' ':'')+x.c+'</button>').join('')
-      + '</div>';
+    const gchips = gTeams.map(x=>'<button class="gchip'+(x.c===t.c?' cur':'')+'" onclick="goTeam(\''+x.c+'\')">'
+      + (FLAGS[x.c]?FLAGS[x.c]+' ':'')+x.c+'</button>').join('');
+    const left = '<div class="page"><div class="pgrid">'
+      + '<div class="tblock"><div class="we-pre">WE ARE</div>'
+      + '<div class="we">'+(flag?flag+' ':'')+t.es.toUpperCase()+'</div></div>'
+      + s(1)+s(2)
+      + s(3)+s(4)+s(5)+s(6)
+      + s(7)+s(8)+s(9)+s(10)
+      + '</div><div class="pgn">pág. '+(pg||'?')+'</div></div>';
+    const right = '<div class="page"><div class="pgrid">'
+      + s(11)+s(12)+slotBtn(t, 13, 'wide shiny')
+      + s(14)+s(15)+s(16)+s(17)
+      + '<div class="gblock"><span class="gt">GRUPO '+t.g+'</span><span class="gflags">'+gchips+'</span></div>'
+      + s(18)+s(19)+s(20)
+      + '</div><div class="pgn">pág. '+(pg?pg+1:'?')+'</div></div>';
+    el.innerHTML = '<div class="spread">'+left+right+'</div>'+metabar;
+    return;
   }
+
+  // Fallback (FWC, CC, equipos custom o con rango editado): grilla uniforme
+  let slots='';
+  for(const n of list) slots += slotBtn(t, n);
   el.innerHTML = '<div class="album">'
     + '<div class="topline"><div>'
     + (t.special ? '' : '<div class="we-pre">WE ARE</div>')
     + '<div class="we">'+(flag?flag+' ':'')+t.es.toUpperCase()+'</div></div>'
-    + '<div class="meta">'
-    + '<span onclick="editPage(\''+t.c+'\')">Pág. '+(pg||'?')+' ✎</span>'
-    + '<span onclick="editMax(\''+t.c+'\')">1–'+maxOf(t)+' ✎</span>'
-    + '<span>'+done+'/'+list.length+'</span>'
-    + '</div></div>'
-    + '<div class="slots">'+slots+'</div>'+gb+'</div>';
+    + '</div>'
+    + '<div class="slots">'+slots+'</div></div>'
+    + metabar;
 }
 
 function renderRepes(){
