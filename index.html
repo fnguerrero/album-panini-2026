@@ -27,7 +27,7 @@
     font-size:16px; line-height:1.4;
     -webkit-tap-highlight-color:transparent;
   }
-  .wrap{max-width:520px; margin:0 auto; padding:12px 12px 90px}
+  .wrap{max-width:520px; margin:0 auto; padding:12px 12px 160px}
   header{display:flex; align-items:baseline; justify-content:space-between; gap:8px; padding:4px 2px 10px; flex-wrap:wrap}
   header h1{font-size:1rem; margin:0; letter-spacing:.02em; white-space:nowrap}
   header h1 span{color:var(--accent)}
@@ -67,25 +67,31 @@
   .sug .sc{font-weight:800; letter-spacing:.05em; min-width:52px; color:var(--accent)}
   .sug .sn{flex:1}
   .sug .sn small{color:var(--muted); display:block; font-size:.75rem}
+  .fl{width:22px; height:auto; border-radius:2px; vertical-align:-4px}
+  .fl.big{width:44px; border-radius:3px; box-shadow:0 1px 5px rgba(0,0,0,.45); margin-top:7px}
 
   .card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; margin-top:12px}
-  .status{border-radius:12px; padding:16px 14px; margin-top:12px; text-align:center}
-  .status .code{font-size:2rem; font-weight:800; letter-spacing:.05em; font-variant-numeric:tabular-nums}
-  .status .team{font-size:1rem; margin-top:2px}
-  .status .verdict{font-size:1.5rem; font-weight:800; margin-top:8px; letter-spacing:.02em}
-  .status .page{margin-top:6px; font-size:.85rem; opacity:.85}
-  .status.miss{background:var(--miss-bg); color:var(--miss)}
-  .status.ok{background:var(--ok-bg); color:var(--ok)}
-  .status.rep{background:var(--rep-bg); color:var(--rep)}
 
-  .actions{display:flex; gap:10px; margin-top:12px}
-  .actions button{
-    flex:1; padding:16px 8px; font-size:1rem; font-weight:700; border-radius:12px;
-    border:1.5px solid var(--border); background:var(--card); color:var(--text); cursor:pointer;
+  /* Barra de acción fija (figurita seleccionada + botones) */
+  .actionbar{
+    position:fixed; bottom:calc(62px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
+    width:100%; max-width:520px; padding:8px 12px; display:flex; gap:8px; z-index:9;
+    background:var(--bg); border-top:1px solid var(--border);
   }
-  .actions button.primary{background:var(--accent); border-color:var(--accent); color:#fff}
-  .actions button.rep-btn{background:var(--rep); border-color:var(--rep); color:#fff}
-  .actions button:disabled{opacity:.4}
+  .ab-chip{
+    flex:1; border-radius:10px; display:flex; align-items:center; justify-content:center; gap:8px;
+    font-weight:800; font-size:.95rem; padding:11px 6px; font-variant-numeric:tabular-nums;
+  }
+  .ab-chip.miss{background:var(--miss-bg); color:var(--miss)}
+  .ab-chip.ok{background:var(--ok-bg); color:var(--ok)}
+  .ab-chip.rep{background:var(--rep-bg); color:var(--rep)}
+  .ab-chip.none{background:var(--chip); color:var(--muted); font-weight:600; font-size:.85rem}
+  .ab-btn{
+    padding:11px 16px; border-radius:10px; font-weight:800; font-size:1rem; cursor:pointer;
+    border:1.5px solid var(--border); background:var(--card); color:var(--text);
+  }
+  .ab-btn.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+  .ab-btn:disabled{opacity:.35}
 
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(56px,1fr)); gap:8px; margin-top:10px}
   .grid button{
@@ -93,52 +99,56 @@
     background:var(--chip); color:var(--muted); font-weight:700; font-size:.95rem;
     font-variant-numeric:tabular-nums; cursor:pointer; position:relative;
   }
-  .grid button.ok{background:var(--ok-bg); border-color:var(--ok); color:var(--ok)}
-  .grid button.rep{background:var(--rep-bg); border-color:var(--rep); color:var(--rep)}
   .grid button.sel{outline:3px solid var(--accent)}
-  .grid button .b{
-    position:absolute; top:-7px; right:-5px; background:var(--rep); color:#fff;
-    border-radius:9px; font-size:.68rem; padding:1px 5px; font-weight:800;
-  }
 
-  /* Vista "página de álbum" */
-  .album{background:linear-gradient(150deg,#17934e,#0d7247 55%,#0b5e50); border-radius:14px; padding:14px 12px; margin-top:12px; color:#fff}
-  .album .topline{display:flex; justify-content:space-between; gap:8px; align-items:flex-start}
-  .album .we-pre{font-size:.78rem; font-weight:800; font-style:italic; letter-spacing:.2em; opacity:.9}
-  .album .we{font-size:1.45rem; font-weight:900; font-style:italic; letter-spacing:.02em; line-height:1.15; text-wrap:balance}
-  .album .meta{display:flex; flex-direction:column; align-items:flex-end; gap:3px; font-size:.78rem; opacity:.95; font-variant-numeric:tabular-nums; white-space:nowrap}
-  .album .meta span{cursor:pointer}
-  .slots{display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin-top:14px}
+  /* Páginas estilo álbum (color según equipo via --tc) */
+  .spread{display:flex; flex-direction:column; gap:10px; margin-top:10px}
+  .spread.horiz{flex-direction:row; gap:6px}
+  .page{
+    border-radius:12px; padding:10px; color:#fff;
+    background:linear-gradient(150deg,#17934e,#0b5e50);
+    background:linear-gradient(150deg,var(--tc,#17934e), color-mix(in srgb, var(--tc,#0b5e50) 50%, black));
+  }
+  .spread.horiz .page{flex:1; padding:6px}
+  .pgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; grid-auto-rows:minmax(74px,auto)}
+  .spread.horiz .pgrid{gap:5px; grid-auto-rows:minmax(50px,auto)}
+  .tblock{grid-column:span 2; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:2px}
+  .we-pre{font-size:.7rem; font-weight:800; font-style:italic; letter-spacing:.2em; opacity:.9}
+  .we{font-size:1rem; font-weight:900; font-style:italic; letter-spacing:.02em; line-height:1.15; text-wrap:balance}
+  .spread.horiz .we{font-size:.7rem}
+  .spread.horiz .we-pre{font-size:.52rem; letter-spacing:.12em}
+  .spread.horiz .fl.big{width:26px; margin-top:4px}
+  .pgn{text-align:right; font-size:.68rem; opacity:.75; margin-top:6px; font-style:italic}
+  .spread.horiz .pgn{font-size:.58rem}
+
   .slot{position:relative; border:0; border-radius:9px; padding:12px 2px 10px; display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; font-family:inherit}
+  .spread.horiz .slot{padding:6px 1px 5px; gap:1px; border-radius:6px}
   .slot .sc{font-size:.62rem; font-weight:800; letter-spacing:.08em}
   .slot .sn{font-size:1.5rem; font-weight:900; line-height:1; font-variant-numeric:tabular-nums}
+  .spread.horiz .slot .sc{font-size:.48rem}
+  .spread.horiz .slot .sn{font-size:.95rem}
   .slot.smiss{background:#f4efe3; color:#a89f8d}
   .slot.sok{background:linear-gradient(160deg,#0e4d2c,#186b3c); color:#fff; box-shadow:inset 0 0 0 2px rgba(255,255,255,.28)}
   .slot.srep{background:linear-gradient(160deg,#3b2a6e,#6242a8); color:#fff}
   .slot.sel{outline:3px solid #ffd757}
+  .slot.shiny.smiss{background:linear-gradient(160deg,#ead9f7,#cbaae9); color:#7a4ba8}
   .slot .b{position:absolute; top:-7px; right:-6px; background:#ffd757; color:#4a3a10; border-radius:9px; font-size:.68rem; padding:1px 5px; font-weight:800}
   .slot .tick{position:absolute; top:4px; right:6px; font-size:.7rem; opacity:.9}
-  .groupbar{margin-top:14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:rgba(0,0,0,.18); border-radius:10px; padding:9px 10px}
-  .groupbar .gt{font-weight:900; font-style:italic; letter-spacing:.08em; font-size:.95rem}
-  .gchip{border:0; border-radius:8px; padding:6px 9px; font-weight:800; font-size:.85rem; background:rgba(255,255,255,.92); color:#0d5c3a; cursor:pointer}
-  .gchip.cur{background:#ffd757; color:#4a3a10}
-
-  /* Doble página estilo álbum */
-  .spread{display:flex; flex-direction:column; gap:10px; margin-top:10px}
-  .page{background:linear-gradient(150deg,#17934e,#0d7247 60%,#0b5e50); border-radius:12px; padding:10px; color:#fff}
-  .pgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; grid-auto-rows:minmax(74px,auto)}
-  .tblock{grid-column:span 2; display:flex; flex-direction:column; justify-content:center; padding:2px 4px}
-  .tblock .we-pre{font-size:.7rem}
-  .tblock .we{font-size:1.05rem; line-height:1.15}
-  .pgn{text-align:right; font-size:.68rem; opacity:.75; margin-top:6px; font-style:italic}
-  .slot.wide{grid-column:span 2}
-  .slot.shiny.smiss{background:linear-gradient(160deg,#ead9f7,#cbaae9); color:#7a4ba8}
-  .gblock{background:rgba(0,0,0,.28); border-radius:9px; padding:6px 4px; display:flex; flex-direction:column; gap:5px; align-items:center; justify-content:center}
-  .gblock .gt{font-weight:900; font-style:italic; font-size:.72rem; letter-spacing:.06em}
-  .gblock .gflags{display:grid; grid-template-columns:1fr 1fr; gap:3px}
-  .gblock .gchip{padding:3px 5px; font-size:.62rem; border-radius:6px}
-  .metabar{display:flex; justify-content:flex-end; gap:14px; margin-top:8px; font-size:.78rem; color:var(--muted); font-variant-numeric:tabular-nums}
+  .gblock{grid-column:span 2; background:rgba(0,0,0,.28); border-radius:9px; display:flex; align-items:center; justify-content:center}
+  .gblock .gt{font-weight:900; font-style:italic; font-size:1rem; letter-spacing:.08em}
+  .spread.horiz .gblock .gt{font-size:.62rem}
+  .metabar{display:flex; justify-content:flex-end; gap:14px; margin-top:8px; font-size:.78rem; color:var(--muted); font-variant-numeric:tabular-nums; flex-wrap:wrap}
   .metabar span{cursor:pointer}
+  .metabar .lay{color:var(--accent); font-weight:700}
+
+  /* Fallback grilla uniforme (FWC / CC / custom) */
+  .album{
+    border-radius:14px; padding:14px 12px; margin-top:12px; color:#fff;
+    background:linear-gradient(150deg,#17934e,#0b5e50);
+    background:linear-gradient(150deg,var(--tc,#17934e), color-mix(in srgb, var(--tc,#0b5e50) 50%, black));
+  }
+  .album .we{font-size:1.45rem}
+  .slots{display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin-top:14px}
 
   .row{
     display:flex; align-items:center; gap:10px; padding:10px 4px;
@@ -172,7 +182,7 @@
   }
   .empty{text-align:center; color:var(--muted); padding:26px 10px; font-size:.95rem}
   .toast{
-    position:fixed; bottom:78px; left:50%; transform:translateX(-50%);
+    position:fixed; bottom:130px; left:50%; transform:translateX(-50%);
     background:var(--text); color:var(--bg); padding:9px 18px; border-radius:20px;
     font-size:.9rem; font-weight:600; opacity:0; transition:opacity .25s; pointer-events:none; z-index:20;
   }
@@ -192,7 +202,6 @@
   <section id="sec-buscar" class="on">
     <input type="text" id="q" placeholder="ARG10 · FWC5 · bosnia…" autocomplete="off" autocapitalize="characters" inputmode="text">
     <div class="sugs" id="sugs" style="display:none"></div>
-    <div id="result"></div>
     <div id="teamview"></div>
     <p class="hint" id="searchHint">Escribí un código (ARG10, FWC5) o un equipo<br>por sigla o nombre en español o inglés (BIH / Bosnia).</p>
   </section>
@@ -228,6 +237,7 @@
   </section>
 </div>
 
+<div class="actionbar" id="result"></div>
 <nav class="tabs">
   <button data-t="buscar" class="on"><span class="n">🔍</span>Buscar</button>
   <button data-t="repes"><span class="n" id="tabRepes">0</span>Repes</button>
@@ -297,19 +307,34 @@ const SPECIALS = [
   {c:'CC', es:'Especiales CC', en:'CC',            max:14,z:false,special:true},
 ];
 const DEF_MAX = 20;      // los equipos van 1..20 (editable con ✎ si difiere)
-const FLAGS = {
-  MEX:'🇲🇽',RSA:'🇿🇦',KOR:'🇰🇷',CZE:'🇨🇿',CAN:'🇨🇦',BIH:'🇧🇦',QAT:'🇶🇦',SUI:'🇨🇭',
-  BRA:'🇧🇷',MAR:'🇲🇦',HAI:'🇭🇹',SCO:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',USA:'🇺🇸',PAR:'🇵🇾',AUS:'🇦🇺',TUR:'🇹🇷',
-  GER:'🇩🇪',CUW:'🇨🇼',CIV:'🇨🇮',ECU:'🇪🇨',NED:'🇳🇱',JPN:'🇯🇵',SWE:'🇸🇪',TUN:'🇹🇳',
-  BEL:'🇧🇪',EGY:'🇪🇬',IRN:'🇮🇷',NZL:'🇳🇿',ESP:'🇪🇸',CPV:'🇨🇻',KSA:'🇸🇦',URU:'🇺🇾',
-  FRA:'🇫🇷',SEN:'🇸🇳',IRQ:'🇮🇶',NOR:'🇳🇴',ARG:'🇦🇷',ALG:'🇩🇿',AUT:'🇦🇹',JOR:'🇯🇴',
-  POR:'🇵🇹',COD:'🇨🇩',UZB:'🇺🇿',COL:'🇨🇴',ENG:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',CRO:'🇭🇷',GHA:'🇬🇭',PAN:'🇵🇦',
-  FWC:'🏆',CC:'🏆'
+// Banderas (imagen) y color de página por equipo
+const ISO = {
+  MEX:'mx',RSA:'za',KOR:'kr',CZE:'cz',CAN:'ca',BIH:'ba',QAT:'qa',SUI:'ch',
+  BRA:'br',MAR:'ma',HAI:'ht',SCO:'gb-sct',USA:'us',PAR:'py',AUS:'au',TUR:'tr',
+  GER:'de',CUW:'cw',CIV:'ci',ECU:'ec',NED:'nl',JPN:'jp',SWE:'se',TUN:'tn',
+  BEL:'be',EGY:'eg',IRN:'ir',NZL:'nz',ESP:'es',CPV:'cv',KSA:'sa',URU:'uy',
+  FRA:'fr',SEN:'sn',IRQ:'iq',NOR:'no',ARG:'ar',ALG:'dz',AUT:'at',JOR:'jo',
+  POR:'pt',COD:'cd',UZB:'uz',COL:'co',ENG:'gb-eng',CRO:'hr',GHA:'gh',PAN:'pa'
 };
+const COLORS = {
+  MEX:'#006847',RSA:'#007A4D',KOR:'#C60C30',CZE:'#D7141A',CAN:'#D80621',BIH:'#002F6C',
+  QAT:'#8A1538',SUI:'#D52B1E',BRA:'#009C3B',MAR:'#C1272D',HAI:'#00209F',SCO:'#0065BF',
+  USA:'#002868',PAR:'#B22234',AUS:'#00843D',TUR:'#E30A17',GER:'#262626',CUW:'#002B7F',
+  CIV:'#E8720C',ECU:'#C79200',NED:'#E86A10',JPN:'#1A2C5B',SWE:'#005293',TUN:'#E70013',
+  BEL:'#C8102E',EGY:'#A31621',IRN:'#239F40',NZL:'#1F1F1F',ESP:'#AA151B',CPV:'#003893',
+  KSA:'#006C35',URU:'#3E8FC1',FRA:'#002395',SEN:'#00853F',IRQ:'#2E7D32',NOR:'#BA0C2F',
+  ARG:'#4A90C4',ALG:'#006233',AUT:'#ED2939',JOR:'#CE1126',POR:'#A4161A',COD:'#0085CA',
+  UZB:'#0099B5',COL:'#B8860B',ENG:'#33539C',CRO:'#D81E2C',GHA:'#006B3F',PAN:'#DA121A'
+};
+function flagHtml(c, big){
+  const iso = ISO[c];
+  if(!iso) return '';
+  return '<img class="fl'+(big?' big':'')+'" src="https://flagcdn.com/'+(big?'w80':'w40')+'/'+iso+'.png" alt="" onerror="this.style.display=\'none\'">';
+}
 const LS_KEY = 'panini2026';
 
 // ── Estado ─────────────────────────────────────────────────
-let db = {counts:{}, custom:[], pages:{}, sizes:{}};
+let db = {counts:{}, custom:[], pages:{}, sizes:{}, horiz:false};
 let storageOk = true;
 try{
   const raw = localStorage.getItem(LS_KEY);
@@ -376,27 +401,21 @@ function renderStats(){
   $('tabFaltan').textContent = t.miss;
 }
 
-function statusHtml(code, tc){
-  const v = cnt(code), t = team(tc), pg = pageOf(tc);
-  let cls, verdict;
-  if(v===0){ cls='miss'; verdict='❌ ME FALTA'; }
-  else if(v===1){ cls='ok'; verdict='✅ LA TENGO'; }
-  else { cls='rep'; verdict='🔁 REPETIDA ×'+(v-1); }
-  return '<div class="status '+cls+'">'
-    + '<div class="code">'+code+'</div>'
-    + '<div class="team">'+(FLAGS[tc]?FLAGS[tc]+' ':'')+(t?t.es:tc)+(t&&t.g?' · Grupo '+t.g:'')+'</div>'
-    + '<div class="verdict">'+verdict+'</div>'
-    + (pg ? '<div class="page">Pegar en pág. '+pg+'–'+(pg+1)+'</div>' : '')
-    + '</div>'
-    + '<div class="actions">'
-    + '<button class="primary" onclick="plus()">＋1 Conseguí</button>'
-    + '<button '+(v>1?'class="rep-btn"':'')+' onclick="minus()" '+(v===0?'disabled':'')+'>'
-    + (v>1 ? '−1 Cambié una' : '−1 Quitar') + '</button>'
-    + '</div>';
-}
-
+// Barra fija: figurita seleccionada + botones
 function renderResult(){
-  $('result').innerHTML = selCode ? statusHtml(selCode, selTeam) : '';
+  const el = $('result');
+  if(!selCode){
+    el.innerHTML = '<div class="ab-chip none">Tocá un casillero o buscá un código</div>'
+      + '<button class="ab-btn primary" disabled>＋1</button>'
+      + '<button class="ab-btn" disabled>−1</button>';
+  } else {
+    const v = cnt(selCode);
+    const cls = v===0 ? 'miss' : (v===1 ? 'ok' : 'rep');
+    const verdict = v===0 ? '❌ FALTA' : (v===1 ? '✅ TENGO' : '🔁 REPE ×'+(v-1));
+    el.innerHTML = '<div class="ab-chip '+cls+'"><b>'+selCode+'</b><span>'+verdict+'</span></div>'
+      + '<button class="ab-btn primary" onclick="plus()">＋1</button>'
+      + '<button class="ab-btn" onclick="minus()"'+(v===0?' disabled':'')+'>−1</button>';
+  }
   $('searchHint').style.display = (selCode || selTeam) ? 'none' : '';
 }
 
@@ -412,10 +431,13 @@ function renderTeamView(){
   const el = $('teamview');
   const t = selTeam ? team(selTeam) : null;
   if(!t){ el.innerHTML=''; return; }
-  const pg = pageOf(t.c), list = nums(t), flag = FLAGS[t.c] || '';
+  const pg = pageOf(t.c), list = nums(t);
   let done=0;
   for(const n of list) if(cnt(codeOf(t.c,n))>0) done++;
+  const tc = COLORS[t.c] || '';
+  const style = tc ? ' style="--tc:'+tc+'"' : '';
   const metabar = '<div class="metabar">'
+    + '<span class="lay" onclick="toggleLayout()">'+(db.horiz?'⬍ Ver apiladas':'⬌ Ver lado a lado')+'</span>'
     + '<span onclick="editPage(\''+t.c+'\')">Pág. '+(pg||'?')+' ✎</span>'
     + '<span onclick="editMax(\''+t.c+'\')">1–'+maxOf(t)+' ✎</span>'
     + '<span>'+done+'/'+list.length+'</span></div>';
@@ -423,34 +445,32 @@ function renderTeamView(){
   // Distribución real del álbum (doble página) para selecciones con 1–20
   if(t.g && maxOf(t)===20 && !hasZero(t)){
     const s = n => slotBtn(t, n);
-    const gTeams = teams().filter(x=>x.g===t.g);
-    const gchips = gTeams.map(x=>'<button class="gchip'+(x.c===t.c?' cur':'')+'" onclick="goTeam(\''+x.c+'\')">'
-      + (FLAGS[x.c]?FLAGS[x.c]+' ':'')+x.c+'</button>').join('');
-    const left = '<div class="page"><div class="pgrid">'
+    const left = '<div class="page"'+style+'><div class="pgrid">'
       + '<div class="tblock"><div class="we-pre">WE ARE</div>'
-      + '<div class="we">'+(flag?flag+' ':'')+t.es.toUpperCase()+'</div></div>'
+      + '<div class="we">'+t.en.toUpperCase()+'</div>'
+      + flagHtml(t.c, true) + '</div>'
       + s(1)+s(2)
       + s(3)+s(4)+s(5)+s(6)
       + s(7)+s(8)+s(9)+s(10)
       + '</div><div class="pgn">pág. '+(pg||'?')+'</div></div>';
-    const right = '<div class="page"><div class="pgrid">'
-      + s(11)+s(12)+slotBtn(t, 13, 'wide shiny')
-      + s(14)+s(15)+s(16)+s(17)
-      + '<div class="gblock"><span class="gt">GRUPO '+t.g+'</span><span class="gflags">'+gchips+'</span></div>'
-      + s(18)+s(19)+s(20)
+    const right = '<div class="page"'+style+'><div class="pgrid">'
+      + s(11)+s(12)+slotBtn(t, 13, 'shiny')+s(14)
+      + s(15)+s(16)+s(17)+s(18)
+      + '<div class="gblock"><span class="gt">GRUPO '+t.g+'</span></div>'
+      + s(19)+s(20)
       + '</div><div class="pgn">pág. '+(pg?pg+1:'?')+'</div></div>';
-    el.innerHTML = '<div class="spread">'+left+right+'</div>'+metabar;
+    el.innerHTML = '<div class="spread'+(db.horiz?' horiz':'')+'">'+left+right+'</div>'+metabar;
     return;
   }
 
   // Fallback (FWC, CC, equipos custom o con rango editado): grilla uniforme
   let slots='';
   for(const n of list) slots += slotBtn(t, n);
-  el.innerHTML = '<div class="album">'
-    + '<div class="topline"><div>'
+  el.innerHTML = '<div class="album"'+style+'>'
+    + '<div class="tblock">'
     + (t.special ? '' : '<div class="we-pre">WE ARE</div>')
-    + '<div class="we">'+(flag?flag+' ':'')+t.es.toUpperCase()+'</div></div>'
-    + '</div>'
+    + '<div class="we">'+t.en.toUpperCase()+'</div>'
+    + flagHtml(t.c, true) + '</div>'
     + '<div class="slots">'+slots+'</div></div>'
     + metabar;
 }
@@ -463,7 +483,7 @@ function renderRepes(){
   }
   $('repList').innerHTML = rows.length ? rows.map(r =>
     '<div class="row"><span class="code">'+r.code+'</span>'
-    + '<span class="info"><span class="t">'+team(r.tc).es+'</span></span>'
+    + '<span class="info"><span class="t">'+flagHtml(r.tc)+' '+team(r.tc).es+'</span></span>'
     + '<span class="cnt">×'+r.extra+'</span>'
     + '<button onclick="trade(\''+r.code+'\')">−</button></div>'
   ).join('') : '<div class="empty">Sin repetidas por ahora</div>';
@@ -499,7 +519,7 @@ function renderTeams(){
     for(const n of list){ const v=cnt(codeOf(t.c,n)); if(v>0)done++; reps+=Math.max(0,v-1); }
     const pct = Math.round(done/list.length*100);
     return '<div class="team-row" onclick="goTeam(\''+t.c+'\')">'
-      + '<span class="nm">'+(FLAGS[t.c]?FLAGS[t.c]+' ':'')+t.es+' <small>'+t.c+(t.g?' · Gr. '+t.g:'')+(t.p?' · pág. '+t.p:'')+'</small></span>'
+      + '<span class="nm">'+flagHtml(t.c)+' '+t.es+' <small>'+t.c+(t.g?' · Gr. '+t.g:'')+(t.p?' · pág. '+t.p:'')+'</small></span>'
       + '<span class="pr"><b>'+done+'</b>/'+list.length+(reps?' · <span style="color:var(--rep)">'+reps+' rep</span>':'')
       + '<span class="bar"><i style="width:'+pct+'%"></i></span></span></div>';
   }).join('');
@@ -532,6 +552,7 @@ function goTeam(c){
   selTeam = c; selCode = null;
   switchTab('buscar'); $('q').value = c; hideSugs(); renderAll();
 }
+function toggleLayout(){ db.horiz = !db.horiz; save(); renderAll(); }
 function editPage(c){
   const p = prompt('¿En qué página del álbum está '+team(c).es+'?', pageOf(c));
   if(p && !isNaN(+p)){ db.pages[c] = +p; save(); renderAll(); }
@@ -562,7 +583,7 @@ function showSugs(list){
   el.innerHTML = list.map(t =>
     '<button class="sug" onclick="goTeam(\''+t.c+'\')">'
     + '<span class="sc">'+t.c+'</span>'
-    + '<span class="sn">'+(FLAGS[t.c]?FLAGS[t.c]+' ':'')+t.es+(t.en!==t.es?'<small>'+t.en+'</small>':'')+'</span>'
+    + '<span class="sn">'+flagHtml(t.c)+' '+t.es+(t.en!==t.es?'<small>'+t.en+'</small>':'')+'</span>'
     + '</button>'
   ).join('');
   el.style.display='';
@@ -584,13 +605,9 @@ $('q').addEventListener('input', e=>{
     if(hit){ selTeam = hit.t.c; selCode = codeOf(hit.t.c, hit.n); hideSugs(); }
     else { selTeam = null; selCode = null; hideSugs(); }
   } else if(raw.length>=1 && /^[^\d]+$/.test(raw)){
-    selCode = null;
-    const r = norm(raw);
-    const exact = teams().find(t => t.c===r || (t.a||[]).includes(r));
-    const list = matchTeams(raw);
-    if(exact){ selTeam = exact.c; hideSugs(); }
-    else if(list.length===1){ selTeam = list[0].c; hideSugs(); }
-    else { selTeam = null; showSugs(list); }
+    // Siempre mostrar sugerencias: el equipo se elige tocándolo
+    selCode = null; selTeam = null;
+    showSugs(matchTeams(raw));
   } else { selTeam = null; selCode = null; hideSugs(); }
   renderResult(); renderTeamView();
 });
@@ -599,6 +616,7 @@ $('q').addEventListener('input', e=>{
 function switchTab(name){
   document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.t===name));
   document.querySelectorAll('section').forEach(s=>s.classList.toggle('on', s.id==='sec-'+name));
+  $('result').style.display = name==='buscar' ? 'flex' : 'none';
   window.scrollTo(0,0);
 }
 document.querySelectorAll('.tabs button').forEach(b=>{
@@ -634,7 +652,7 @@ $('impBtn').addEventListener('click', ()=>{
     const obj = JSON.parse($('io').value);
     if(!obj || typeof obj.counts !== 'object') throw 0;
     if(!confirm('Esto reemplaza tus datos actuales. ¿Importar?')) return;
-    db = {counts:obj.counts||{}, custom:obj.custom||[], pages:obj.pages||{}, sizes:obj.sizes||{}};
+    db = {counts:obj.counts||{}, custom:obj.custom||[], pages:obj.pages||{}, sizes:obj.sizes||{}, horiz:!!obj.horiz};
     save(); renderAll(); toast('Backup importado');
   }catch(e){ toast('El texto pegado no es un backup válido'); }
 });
