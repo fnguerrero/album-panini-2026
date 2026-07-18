@@ -228,6 +228,17 @@
   .metabar{display:flex; justify-content:flex-end; gap:14px; margin-top:8px; font-size:.78rem; color:var(--muted); font-variant-numeric:tabular-nums; flex-wrap:wrap}
   .metabar span{cursor:pointer}
   .metabar .lay{color:var(--accent); font-weight:700}
+  .teamnav{display:flex; align-items:center; gap:8px; margin-top:10px}
+  .teamnav button{
+    width:44px; height:40px; border-radius:10px; border:1.5px solid var(--border);
+    background:var(--card); color:var(--accent); font-size:1.35rem; font-weight:900; cursor:pointer;
+  }
+  .teamnav .teamlabel{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:7px; min-height:40px;
+    border:1px solid var(--border); border-radius:10px; background:var(--card);
+    font-size:.82rem; font-weight:800; color:var(--text); text-align:center;
+  }
+  .teamnav .teamlabel small{font-size:.68rem; font-weight:700; color:var(--muted)}
 
   /* Fallback grilla uniforme (FWC / CC / custom) */
   .album{
@@ -659,19 +670,32 @@ function renderTeamView(){
       + '<div class="gblock"><span class="gt">GRUPO '+t.g+'</span></div>'
       + s(18)+s(19)+s(20)
       + '</div><div class="pgn">pág. '+(pg?pg+1:'?')+'</div></div>';
-    el.innerHTML = '<div class="spread'+(db.horiz?' horiz':'')+'">'+left+right+'</div>';
+    el.innerHTML = teamNavHtml(t) + '<div class="swipearea"><div class="spread'+(db.horiz?' horiz':'')+'">'+left+right+'</div></div>';
+    bindTeamSwipe();
     return;
   }
 
   // Fallback (FWC, CC, equipos custom o con rango editado): grilla uniforme
   let slots='';
   for(const n of list) slots += slotBtn(t, n);
-  el.innerHTML = '<div class="album"'+style+'>'
+  el.innerHTML = teamNavHtml(t) + '<div class="swipearea"><div class="album"'+style+'>'
     + '<div class="tblock">'
     + (t.special ? '' : '<div class="we-pre">WE ARE</div>')
     + '<div class="we">'+t.en.toUpperCase()+'</div>'
     + '<div class="fed">'+flagHtml(t.c)+(FED[t.c]?'<span>'+FED[t.c]+'</span>':'')+'</div></div>'
-    + '<div class="slots">'+slots+'</div></div>';
+    + '<div class="slots">'+slots+'</div></div></div>';
+  bindTeamSwipe();
+}
+
+function teamNavHtml(t){
+  const pg = pageOf(t.c);
+  return '<div class="teamnav">'
+    + '<button type="button" onclick="moveTeam(-1)" title="Página anterior">‹</button>'
+    + '<div class="teamlabel">'+flagHtml(t.c)+' <span>'+t.es+'</span>'
+    + (pg ? '<small>pág. '+pg+(t.g?'–'+(pg+1):'')+'</small>' : '')
+    + '</div>'
+    + '<button type="button" onclick="moveTeam(1)" title="Página siguiente">›</button>'
+    + '</div>';
 }
 
 function renderRepes(){
@@ -750,6 +774,25 @@ function goCode(code, tc){
 function goTeam(c){
   selTeam = c; selCode = null;
   switchTab('buscar'); $('q').value = c; hideSugs(); renderAll();
+}
+function moveTeam(delta){
+  if(!selTeam) return;
+  const list = teams();
+  const i = Math.max(0, teamIdx(selTeam));
+  const next = list[(i + delta + list.length) % list.length];
+  goTeam(next.c);
+}
+function bindTeamSwipe(){
+  const area = document.querySelector('#teamview .swipearea');
+  if(!area) return;
+  let sx = 0, sy = 0;
+  area.addEventListener('touchstart', e=>{
+    const t = e.changedTouches[0]; sx = t.clientX; sy = t.clientY;
+  }, {passive:true});
+  area.addEventListener('touchend', e=>{
+    const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+    if(Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.35) moveTeam(dx < 0 ? 1 : -1);
+  }, {passive:true});
 }
 function toggleLayout(){ db.horiz = !db.horiz; db.horizSet = true; save(); renderAll(); }
 function goHome(){ selTeam = null; selCode = null; $('q').value=''; hideSugs(); renderAll(); }
