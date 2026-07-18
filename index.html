@@ -72,6 +72,26 @@
 
   .card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; margin-top:12px}
 
+  /* Inicio: resumen + lista de selecciones */
+  .statgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px}
+  .stat{border-radius:12px; padding:12px 6px; text-align:center}
+  .stat .v{font-size:1.7rem; font-weight:900; font-variant-numeric:tabular-nums; line-height:1.1}
+  .stat .l{font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; opacity:.9}
+  .stat.ok{background:var(--ok-bg); color:var(--ok)}
+  .stat.miss{background:var(--miss-bg); color:var(--miss)}
+  .stat.rep{background:var(--rep-bg); color:var(--rep)}
+  .pbar{height:8px; background:var(--chip); border-radius:4px; overflow:hidden; margin-top:10px}
+  .pbar i{display:block; height:100%; background:var(--accent)}
+  .plabel{font-size:.75rem; color:var(--muted); text-align:center; margin-top:4px; font-variant-numeric:tabular-nums}
+  .teambtns{display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin-top:8px}
+  .tbtn{
+    display:flex; align-items:center; gap:8px; padding:10px 9px; border-radius:10px;
+    border:1px solid var(--border); background:var(--card); color:var(--text);
+    font-weight:600; font-size:.88rem; cursor:pointer; text-align:left; font-family:inherit;
+  }
+  .tbtn .tn{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .tbtn small{color:var(--muted); font-variant-numeric:tabular-nums; font-weight:600}
+
   /* Barra de acción fija (figurita seleccionada + botones) */
   .actionbar{
     position:fixed; bottom:calc(62px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
@@ -203,7 +223,7 @@
     <input type="text" id="q" placeholder="ARG10 · FWC5 · bosnia…" autocomplete="off" autocapitalize="characters" inputmode="text">
     <div class="sugs" id="sugs" style="display:none"></div>
     <div id="teamview"></div>
-    <p class="hint" id="searchHint">Escribí un código (ARG10, FWC5) o un equipo<br>por sigla o nombre en español o inglés (BIH / Bosnia).</p>
+    <div id="home"></div>
   </section>
 
   <!-- REPES -->
@@ -416,7 +436,36 @@ function renderResult(){
       + '<button class="ab-btn primary" onclick="plus()">＋1</button>'
       + '<button class="ab-btn" onclick="minus()"'+(v===0?' disabled':'')+'>−1</button>';
   }
-  $('searchHint').style.display = (selCode || selTeam) ? 'none' : '';
+}
+
+// Pantalla de inicio: resumen + selecciones en orden alfabético
+function renderHome(){
+  const el = $('home');
+  const idle = !selTeam && !selCode && !$('q').value.trim();
+  if(!idle){ el.innerHTML=''; return; }
+  const t = totals();
+  const pct = Math.round(t.have/t.total*100);
+  const nations = NATIONS.slice().sort((a,b)=>a.es.localeCompare(b.es,'es'));
+  const all = nations.concat(SPECIALS)
+    .concat((db.custom||[]).map(x => Array.isArray(x) ? {c:x[0],es:x[1],en:x[1]} : x));
+  const btns = all.map(x=>{
+    const full = team(x.c) || x;
+    const list = nums(full);
+    let done=0;
+    for(const n of list) if(cnt(codeOf(full.c,n))>0) done++;
+    return '<button class="tbtn" onclick="goTeam(\''+full.c+'\')">'
+      + (ISO[full.c] ? flagHtml(full.c) : '🏆')
+      + '<span class="tn">'+full.es+'</span>'
+      + '<small>'+done+'/'+list.length+'</small></button>';
+  }).join('');
+  el.innerHTML = '<div class="statgrid">'
+    + '<div class="stat ok"><div class="v">'+t.have+'</div><div class="l">Pegadas</div></div>'
+    + '<div class="stat miss"><div class="v">'+t.miss+'</div><div class="l">Faltan</div></div>'
+    + '<div class="stat rep"><div class="v">'+t.reps+'</div><div class="l">Repes</div></div>'
+    + '</div>'
+    + '<div class="pbar"><i style="width:'+pct+'%"></i></div>'
+    + '<div class="plabel">'+pct+'% del álbum ('+t.have+'/'+t.total+')</div>'
+    + '<h2>Selecciones</h2><div class="teambtns">'+btns+'</div>';
 }
 
 function slotBtn(t, n, extra){
@@ -437,6 +486,7 @@ function renderTeamView(){
   const tc = COLORS[t.c] || '';
   const style = tc ? ' style="--tc:'+tc+'"' : '';
   const metabar = '<div class="metabar">'
+    + '<span class="lay" onclick="goHome()">⌂ Inicio</span>'
     + '<span class="lay" onclick="toggleLayout()">'+(db.horiz?'⬍ Ver apiladas':'⬌ Ver lado a lado')+'</span>'
     + '<span onclick="editPage(\''+t.c+'\')">Pág. '+(pg||'?')+' ✎</span>'
     + '<span onclick="editMax(\''+t.c+'\')">1–'+maxOf(t)+' ✎</span>'
@@ -526,7 +576,7 @@ function renderTeams(){
 }
 
 function renderAll(){
-  renderStats(); renderResult(); renderTeamView();
+  renderStats(); renderResult(); renderTeamView(); renderHome();
   renderRepes(); renderFaltan(); renderTeams();
 }
 
@@ -553,6 +603,7 @@ function goTeam(c){
   switchTab('buscar'); $('q').value = c; hideSugs(); renderAll();
 }
 function toggleLayout(){ db.horiz = !db.horiz; save(); renderAll(); }
+function goHome(){ selTeam = null; selCode = null; $('q').value=''; hideSugs(); renderAll(); }
 function editPage(c){
   const p = prompt('¿En qué página del álbum está '+team(c).es+'?', pageOf(c));
   if(p && !isNaN(+p)){ db.pages[c] = +p; save(); renderAll(); }
@@ -609,7 +660,7 @@ $('q').addEventListener('input', e=>{
     selCode = null; selTeam = null;
     showSugs(matchTeams(raw));
   } else { selTeam = null; selCode = null; hideSugs(); }
-  renderResult(); renderTeamView();
+  renderResult(); renderTeamView(); renderHome();
 });
 
 // ── Tabs ───────────────────────────────────────────────────
