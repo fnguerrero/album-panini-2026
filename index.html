@@ -41,6 +41,7 @@
   .hrow{display:flex; align-items:center; justify-content:space-between; gap:8px}
   header h1{font-size:1rem; margin:0; letter-spacing:.02em; white-space:nowrap}
   header h1 span{color:var(--accent)}
+  header h1 .ver{font-size:.6rem; font-weight:700; color:var(--muted); letter-spacing:.02em; margin-left:6px; vertical-align:middle}
   .hbtns{display:flex; gap:6px}
   .hbtns button{
     border:1.5px solid var(--border); background:var(--card); color:var(--accent);
@@ -89,13 +90,21 @@
 
   /* Inicio: resumen + lista de selecciones */
   .statgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:10px}
-  .stat{border-radius:11px; padding:8px 2px; text-align:center}
+  .stat{border-radius:11px; padding:8px 2px; text-align:center; border:1px solid color-mix(in srgb, currentColor 20%, transparent)}
   .stat .v{font-size:1.2rem; font-weight:900; font-variant-numeric:tabular-nums; line-height:1.1}
   .stat .l{font-size:.54rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; opacity:.9}
   .stat.ok{background:var(--ok-bg); color:var(--ok)}
   .stat.miss{background:var(--miss-bg); color:var(--miss)}
   .stat.rep{background:var(--rep-bg); color:var(--rep)}
   .stat.pct{background:var(--accent-soft); color:var(--accent)}
+  .pbar{margin-top:12px}
+  .pbar .pbar-top{display:flex; justify-content:space-between; align-items:baseline; font-size:.72rem; color:var(--muted); font-weight:700; margin-bottom:5px}
+  .pbar .pbar-top b{color:var(--text); font-size:.95rem}
+  .pbar .pbar-track{height:12px; background:var(--chip); border-radius:7px; overflow:hidden}
+  .pbar .pbar-fill{height:100%; background:linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #7ad19a)); border-radius:7px; transition:width .4s ease}
+  .copyrow{display:flex; gap:8px; flex-wrap:wrap; margin:2px 0 8px}
+  .copybtn{padding:9px 12px; border-radius:9px; border:1.5px solid var(--border); background:var(--card); color:var(--accent); font-weight:800; font-size:.85rem; cursor:pointer}
+  .copybtn:active{background:var(--accent-soft)}
   #home h2{margin:10px 2px 4px}
   .teambtns{display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin-top:6px}
   .tbtn{
@@ -292,7 +301,10 @@
     body > *:not(#report){display:none !important}
     #report{display:block !important; color:#000; background:#fff; font-size:7.2px; line-height:1.18}
     #report h1{font-size:13px; margin:0 0 2px}
-    #report .rsum{font-size:9px; font-weight:700; margin-bottom:5px}
+    #report .rsum{font-size:9px; font-weight:700; margin-bottom:4px}
+    #report .rbar{height:6px; background:#dcdcdc; border-radius:3px; overflow:hidden; margin:0 0 6px; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+    #report .rbar i{display:block; height:100%; background:#1f7a3d; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+    #report .rdone{font-size:7.4px; margin-top:5px; break-inside:avoid; page-break-inside:avoid}
     #report .rgrid{column-count:3; column-gap:9px}
     #report .rteam{break-inside:avoid; page-break-inside:avoid; margin-bottom:3px}
     #report .rteam b{font-size:7.6px}
@@ -303,7 +315,7 @@
 <div class="wrap">
   <header>
     <div class="hrow">
-      <h1>⚽ <span>Mundial 2026</span></h1>
+      <h1>⚽ <span>Mundial 2026</span><small class="ver">v1.0</small></h1>
       <div class="hbtns">
         <button id="cfgBtn" title="Configuración">⚙</button>
       </div>
@@ -553,7 +565,7 @@ function allCodes(){
   for(const t of teams()) for(const n of nums(t)) out.push(codeOf(t.c, n));
   return out;
 }
-function norm(s){ return s.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
+function norm(s){ return s.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 
 // ── Estado UI ──────────────────────────────────────────────
 let selCode = null, selTeam = null;
@@ -627,11 +639,13 @@ function renderHome(){
       + (ISO[full.c] ? flagHtml(full.c) : '🏆')
       + '<span>'+full.c+'</span></button>';
   }).join('');
-  el.innerHTML = '<div class="statgrid">'
-    + '<div class="stat ok"><div class="v">'+t.have+'</div><div class="l">Pegadas</div></div>'
-    + '<div class="stat miss"><div class="v">'+t.miss+'</div><div class="l">Faltan</div></div>'
-    + '<div class="stat rep"><div class="v">'+t.reps+'</div><div class="l">REPETIDAS</div></div>'
-    + '<div class="stat pct"><div class="v">'+pct+'%</div><div class="l">Completado</div></div>'
+  el.innerHTML = '<div class="pbar"><div class="pbar-top"><span>Progreso del álbum</span><span><b>'+t.have+'</b> / '+t.total+'</span></div>'
+    + '<div class="pbar-track"><div class="pbar-fill" style="width:'+pct+'%"></div></div></div>'
+    + '<div class="statgrid">'
+    + '<div class="stat ok"><div class="v">'+t.have+'</div><div class="l">✅ Pegadas</div></div>'
+    + '<div class="stat miss"><div class="v">'+t.miss+'</div><div class="l">❌ Faltan</div></div>'
+    + '<div class="stat rep"><div class="v">'+t.reps+'</div><div class="l">🔁 REPETIDAS</div></div>'
+    + '<div class="stat pct"><div class="v">'+pct+'%</div><div class="l">🏆 Completado</div></div>'
     + '</div>'
     + '<h2>Selecciones</h2><div class="teambtns">'+btns+'</div>'
     + '<div class="btn-line"><button onclick="printReport()">🖨 Reporte para imprimir</button></div>';
@@ -707,12 +721,14 @@ function renderRepes(){
     const code = codeOf(t.c, n), v = cnt(code);
     if(v>1) rows.push({code, tc:t.c, extra:v-1});
   }
-  $('repList').innerHTML = rows.length ? rows.map(r =>
+  $('repList').innerHTML = rows.length ? (
+    '<div class="copyrow"><button class="copybtn" onclick="copyRepes()">📋 Copiar repetidas</button></div>'
+    + rows.map(r =>
     '<div class="row"><span class="code">'+r.code+'</span>'
     + '<span class="info"><span class="t">'+flagHtml(r.tc)+' '+team(r.tc).es+'</span></span>'
     + '<span class="cnt">×'+r.extra+'</span>'
     + '<button onclick="trade(\''+r.code+'\')">−</button></div>'
-  ).join('') : '<div class="empty">Sin repetidas por ahora</div>';
+  ).join('')) : '<div class="empty">Sin repetidas por ahora</div>';
 }
 
 function renderFaltan(){
@@ -735,7 +751,9 @@ function renderFaltan(){
       + missing.map(n=>'<button onclick="goCode(\''+codeOf(t.c,n)+'\',\''+t.c+'\')">'+(n===0?'00':n)+'</button>').join('')
       + '</div>';
   }
-  list.innerHTML = html || '<div class="empty">🎉 ¡Nada pendiente acá!</div>';
+  list.innerHTML = html
+    ? '<div class="copyrow"><button class="copybtn" onclick="copyFaltan()">📋 Copiar faltantes</button></div>' + html
+    : '<div class="empty">🎉 ¡Nada pendiente acá!</div>';
 }
 
 function renderTeams(){
@@ -760,6 +778,41 @@ function renderAll(){
 function toast(msg){
   const t = $('toast'); t.textContent = msg; t.classList.add('show');
   clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 1400);
+}
+function copyText(txt, okMsg){
+  const done = ()=>toast(okMsg);
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done, ()=>fallbackCopy(txt, done));
+  } else fallbackCopy(txt, done);
+}
+function fallbackCopy(txt, done){
+  const ta = document.createElement('textarea');
+  ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta); done();
+}
+function copyRepes(){
+  const lines = [];
+  for(const t of teams()){
+    const arr = [];
+    for(const n of nums(t)){ const e = cnt(codeOf(t.c,n))-1; if(e>0) arr.push((n===0?'00':n)+(e>1?'(x'+e+')':'')); }
+    if(arr.length) lines.push(t.c+': '+arr.join(','));
+  }
+  if(!lines.length){ toast('No tenés repetidas'); return; }
+  copyText('REPETIDAS que ofrezco:\n'+lines.join('\n'), 'Repetidas copiadas 📋');
+}
+function copyFaltan(){
+  const cur = $('faltanTeam').value || 'ALL';
+  const show = cur==='ALL' ? teams() : teams().filter(t=>t.c===cur);
+  const lines = [];
+  for(const t of show){
+    const arr = [];
+    for(const n of nums(t)) if(cnt(codeOf(t.c,n))===0) arr.push(n===0?'00':n);
+    if(arr.length) lines.push(t.c+': '+arr.join(','));
+  }
+  if(!lines.length){ toast('No faltan (en este filtro)'); return; }
+  copyText('FALTANTES que busco:\n'+lines.join('\n'), 'Faltantes copiados 📋');
 }
 function plus(){
   if(multiCodes.size){
@@ -851,23 +904,29 @@ function toggleLayout(){ db.horiz = !db.horiz; db.horizSet = true; save(); rende
 function goHome(){ clearMulti(false); selTeam = null; selCode = null; $('q').value=''; hideSugs(); renderAll(); }
 function printReport(){
   const t = totals();
+  const pct = Math.round(t.have/t.total*100);
+  const sorted = teams().slice().sort((a,b)=>a.c.localeCompare(b.c));
   let html = '<h1>Álbum Panini Mundial 2026 — mi estado</h1>'
-    + '<div class="rsum">Pegadas: '+t.have+'/'+t.total+' · Faltan: '+t.miss+' · Repetidas: '+t.reps
-    + ' · '+new Date().toLocaleDateString('es-AR')+'</div>';
+    + '<div class="rsum">Pegadas: '+t.have+'/'+t.total+' ('+pct+'%) · Faltan: '+t.miss+' · Repetidas: '+t.reps
+    + ' · '+new Date().toLocaleDateString('es-AR')+'</div>'
+    + '<div class="rbar"><i style="width:'+pct+'%"></i></div>';
+  const done = [];
   html += '<div class="rgrid">';
-  for(const tm of teams()){
+  for(const tm of sorted){
     const miss=[], reps=[];
     for(const n of nums(tm)){
       const v = cnt(codeOf(tm.c,n)), lbl = (n===0?'00':n);
       if(v===0) miss.push(lbl);
       else if(v>1) reps.push(lbl+'(×'+(v-1)+')');
     }
-    html += '<div class="rteam"><b>'+tm.c+' — '+tm.es+'</b>'
-      + '<div class="rline">Faltan ('+miss.length+'): '+(miss.join(', ')||'—')+'</div>'
-      + '<div class="rline">Repes: '+(reps.join(', ')||'—')+'</div>'
+    if(!miss.length && !reps.length){ done.push(tm.c); continue; }
+    html += '<div class="rteam"><b>'+tm.c+' — '+tm.es+(miss.length?'':' ✔')+'</b>'
+      + (miss.length ? '<div class="rline">Faltan ('+miss.length+'): '+miss.join(', ')+'</div>' : '')
+      + (reps.length ? '<div class="rline">Repes: '+reps.join(', ')+'</div>' : '')
       + '</div>';
   }
   html += '</div>';
+  if(done.length) html += '<div class="rdone"><b>✔ Completos ('+done.length+'):</b> '+done.join(', ')+'</div>';
   $('report').innerHTML = html;
   window.print();
 }
