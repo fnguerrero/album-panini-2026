@@ -362,6 +362,8 @@
         <button id="layBtn">Cambiar vista</button>
       </div>
     </div>
+    <h2>Cuenta (sync entre dispositivos)</h2>
+    <div class="card" id="authBox"></div>
     <h2>Datos</h2>
     <div class="card">
       <textarea id="io" rows="3" placeholder="Acá aparece tu backup, o pegá uno para importar" style="font-size:.8rem; font-family:monospace"></textarea>
@@ -401,6 +403,7 @@
 <div class="toast" id="toast"></div>
 <div id="report"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 'use strict';
 // ── Datos base ─────────────────────────────────────────────
@@ -559,6 +562,7 @@ function setCnt(code, v){
   v = Math.max(0, v);
   if(v) db.counts[code] = v; else delete db.counts[code];
   save(); renderAll();
+  cloudPush([code]);
 }
 function allCodes(){
   const out = [];
@@ -819,6 +823,7 @@ function plus(){
     for(const code of codes) setCntRaw(code, cnt(code)+1);
     save(); renderAll();
     toast(codes.length+' figuritas sumadas');
+    cloudPush(codes);
     return;
   }
   if(selCode){ setCnt(selCode, cnt(selCode)+1); toast(selCode+' → '+(cnt(selCode)===1?'¡la tenés!':'repe ×'+(cnt(selCode)-1))); }
@@ -829,6 +834,7 @@ function minus(){
     for(const code of codes) setCntRaw(code, cnt(code)-1);
     save(); renderAll();
     toast(codes.length+' figuritas restadas');
+    cloudPush(codes);
     return;
   }
   if(!selCode) return;
@@ -1038,6 +1044,7 @@ $('resetBtn').addEventListener('click', ()=>{
   btn.textContent = '🗑 Resetear álbum';
   db.counts = {};
   save(); renderAll();
+  cloudClear();
   toast('Álbum reseteado');
 });
 
@@ -1061,7 +1068,7 @@ $('impBtn').addEventListener('click', ()=>{
     if(!obj || typeof obj.counts !== 'object') throw 0;
     if(!confirm('Esto reemplaza tus datos actuales. ¿Importar?')) return;
     db = {counts:obj.counts||{}, custom:obj.custom||[], pages:obj.pages||{}, sizes:obj.sizes||{}, horiz:!!obj.horiz};
-    save(); renderAll(); toast('Backup importado');
+    save(); renderAll(); cloudReplaceAll(); toast('Backup importado');
   }catch(e){ toast('El texto pegado no es un backup válido'); }
 });
 
@@ -1100,6 +1107,98 @@ $('syncBtn').addEventListener('click', ()=>{
 $('storageNote').textContent = storageOk
   ? 'Los datos se guardan solos en este navegador. El backup es por si cambiás de teléfono o navegador.'
   : '⚠️ Este navegador no permite guardar datos: al cerrar la página se pierde todo. Usá "Copiar backup" antes de salir.';
+
+// ── Sync con Supabase (login por email, multi-dispositivo) ─
+const SB_URL = 'https://myjeimdnkmdonyvanmgh.supabase.co';
+const SB_KEY = 'sb_publishable_Euq1QSbPaGC4kveI2csOUw_oMEAXRLa';
+const ALBUM_ID = 'panini2026';
+let sb = null, session = null;
+try{ if(window.supabase) sb = window.supabase.createClient(SB_URL, SB_KEY); }catch(e){ sb = null; }
+function isAuthed(){ return !!(sb && session && session.user); }
+
+async function cloudPush(codes){
+  if(!isAuthed() || !codes || !codes.length) return;
+  const uid = session.user.id, ups = [], dels = [];
+  for(const code of codes){
+    const v = cnt(code);
+    if(v>0) ups.push({user_id:uid, album_id:ALBUM_ID, code, count:v, updated_at:new Date().toISOString()});
+    else dels.push(code);
+  }
+  try{
+    if(ups.length) await sb.from('user_stickers').upsert(ups);
+    if(dels.length) await sb.from('user_stickers').delete().eq('user_id',uid).eq('album_id',ALBUM_ID).in('code',dels);
+  }catch(e){ /* sin conexión: queda local, se resincroniza al próximo login */ }
+}
+async function cloudClear(){
+  if(!isAuthed()) return;
+  try{ await sb.from('user_stickers').delete().eq('user_id',session.user.id).eq('album_id',ALBUM_ID); }catch(e){}
+}
+async function cloudReplaceAll(){
+  if(!isAuthed()) return;
+  await cloudClear();
+  await cloudPush(Object.keys(db.counts));
+}
+async function pullAndMerge(){
+  if(!isAuthed()) return;
+  const uid = session.user.id;
+  const remote = {};
+  try{
+    const { data, error } = await sb.from('user_stickers').select('code,count').eq('user_id',uid).eq('album_id',ALBUM_ID);
+    if(error) throw error;
+    for(const r of (data||[])) remote[r.code] = r.count;
+  }catch(e){ toast('No se pudo sincronizar (¿sin conexión?)'); return; }
+  // merge sin pérdida: máximo por código entre local y nube
+  const codes = new Set([...Object.keys(db.counts), ...Object.keys(remote)]);
+  const toPush = [];
+  for(const code of codes){
+    const loc = db.counts[code]||0, rem = remote[code]||0, m = Math.max(loc, rem);
+    if(m>0) db.counts[code] = m; else delete db.counts[code];
+    if(m !== rem) toPush.push(code);   // local/merge más nuevo → subir
+  }
+  save(); renderAll();
+  await cloudPush(toPush);
+}
+async function migrateUp(){
+  if(!isAuthed()){ toast('Primero iniciá sesión'); return; }
+  await cloudPush(Object.keys(db.counts));
+  toast('Álbum subido a la nube ☁️');
+}
+function renderAuth(){
+  const box = $('authBox'); if(!box) return;
+  if(!sb){ box.innerHTML = '<p class="hint" style="text-align:left">Sync no disponible (no cargó la librería).</p>'; return; }
+  if(isAuthed()){
+    box.innerHTML = '<p class="hint" style="text-align:left">Conectado como <b>'+session.user.email+'</b>. Tus figuritas se sincronizan solas entre dispositivos.</p>'
+      + '<div class="btn-line"><button id="migBtn">☁️ Subir mi álbum actual a la nube</button></div>'
+      + '<div class="btn-line"><button id="logoutBtn">Cerrar sesión</button></div>';
+    $('migBtn').addEventListener('click', migrateUp);
+    $('logoutBtn').addEventListener('click', ()=>{ sb.auth.signOut(); });
+  } else {
+    box.innerHTML = '<input type="text" id="authEmail" placeholder="tu@email.com" autocomplete="email" autocapitalize="off" inputmode="email" style="text-transform:none; text-align:left">'
+      + '<div class="btn-line"><button id="loginBtn">✉️ Enviarme el link de acceso</button></div>'
+      + '<p class="hint" id="authMsg" style="text-align:left">Entrás con un link que te llega al mail (sin contraseña). Sincroniza tu álbum entre teléfono y compu.</p>';
+    $('loginBtn').addEventListener('click', sendMagicLink);
+  }
+}
+async function sendMagicLink(){
+  const email = ($('authEmail').value||'').trim();
+  if(!/.+@.+\..+/.test(email)){ toast('Poné un email válido'); return; }
+  const btn = $('loginBtn'); btn.disabled = true;
+  try{
+    const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin + location.pathname } });
+    if(error) throw error;
+    $('authMsg').innerHTML = '✅ Te mandé el link a <b>'+email+'</b>. Abrilo en este dispositivo para entrar.';
+  }catch(e){ toast('No se pudo enviar: '+(e.message||'error')); btn.disabled = false; }
+}
+renderAuth();
+if(sb){
+  sb.auth.getSession().then(({data})=>{ session = (data && data.session) || null; renderAuth(); if(isAuthed()) pullAndMerge(); });
+  sb.auth.onAuthStateChange((event, s)=>{
+    session = s || null;
+    renderAuth();
+    if(event === 'SIGNED_IN'){ toast('Sesión iniciada ✓'); pullAndMerge(); }
+    else if(event === 'SIGNED_OUT'){ toast('Sesión cerrada'); renderAll(); }
+  });
+}
 
 applyTheme();
 renderAll();
