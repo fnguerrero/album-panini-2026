@@ -89,7 +89,7 @@
   .card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; margin-top:12px}
 
   /* Inicio: resumen + lista de selecciones */
-  .statgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:10px}
+  .statgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:10px}
   .stat{border-radius:11px; padding:8px 2px; text-align:center; border:1px solid color-mix(in srgb, currentColor 20%, transparent)}
   .stat .v{font-size:1.2rem; font-weight:900; font-variant-numeric:tabular-nums; line-height:1.1}
   .stat .l{font-size:.54rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; opacity:.9}
@@ -393,7 +393,7 @@
 
 <nav class="tabs">
   <button data-t="buscar" class="on"><span class="n">🔍</span>Buscar</button>
-  <button data-t="repes"><span class="n" id="tabRepes">0</span>REPETIDAS</button>
+  <button data-t="repes"><span class="n" id="tabRepes">0</span>Repetidas</button>
   <button id="bottomHomeBtn"><span class="n">⌂</span>Inicio</button>
   <button data-t="faltan"><span class="n" id="tabFaltan">0</span>Faltan</button>
   <button data-t="equipos"><span class="n">🏳️</span>Equipos</button>
@@ -639,13 +639,12 @@ function renderHome(){
       + (ISO[full.c] ? flagHtml(full.c) : '🏆')
       + '<span>'+full.c+'</span></button>';
   }).join('');
-  el.innerHTML = '<div class="pbar"><div class="pbar-top"><span>Progreso del álbum</span><span><b>'+t.have+'</b> / '+t.total+'</span></div>'
+  el.innerHTML = '<div class="pbar"><div class="pbar-top"><span>Progreso del álbum</span><span><b>'+t.have+'</b> / '+t.total+' · '+pct+'%</span></div>'
     + '<div class="pbar-track"><div class="pbar-fill" style="width:'+pct+'%"></div></div></div>'
     + '<div class="statgrid">'
     + '<div class="stat ok"><div class="v">'+t.have+'</div><div class="l">✅ Pegadas</div></div>'
     + '<div class="stat miss"><div class="v">'+t.miss+'</div><div class="l">❌ Faltan</div></div>'
-    + '<div class="stat rep"><div class="v">'+t.reps+'</div><div class="l">🔁 REPETIDAS</div></div>'
-    + '<div class="stat pct"><div class="v">'+pct+'%</div><div class="l">🏆 Completado</div></div>'
+    + '<div class="stat rep"><div class="v">'+t.reps+'</div><div class="l">🔁 Repetidas</div></div>'
     + '</div>'
     + '<h2>Selecciones</h2><div class="teambtns">'+btns+'</div>'
     + '<div class="btn-line"><button onclick="printReport()">🖨 Reporte para imprimir</button></div>';
