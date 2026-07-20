@@ -315,7 +315,7 @@
 <div class="wrap">
   <header>
     <div class="hrow">
-      <h1>⚽ <span>Mundial 2026</span><small class="ver">v1.0</small></h1>
+      <h1>⚽ <span>Mundial 2026</span><small class="ver">v1.1</small></h1>
       <div class="hbtns">
         <button id="cfgBtn" title="Configuración">⚙</button>
       </div>
@@ -588,6 +588,16 @@ function totals(){
   return {have, reps, miss: total-have, total};
 }
 
+function fmtLastAdd(){
+  const d = db.lastAdd ? new Date(db.lastAdd) : null;
+  if(!d || isNaN(d)) return '';
+  const a = new Date(); a.setHours(0,0,0,0);
+  const b = new Date(d); b.setHours(0,0,0,0);
+  const days = Math.round((a - b) / 86400000);
+  const rel = days<=0 ? 'hoy' : (days===1 ? 'ayer' : 'hace '+days+' días');
+  return d.toLocaleDateString('es-AR') + ' · ' + rel;
+}
+
 function renderStats(){
   const t = totals();
   $('stats').innerHTML = '';
@@ -650,6 +660,7 @@ function renderHome(){
     + '<div class="stat miss"><div class="v">'+t.miss+'</div><div class="l">❌ Faltan</div></div>'
     + '<div class="stat rep"><div class="v">'+t.reps+'</div><div class="l">🔁 Repetidas</div></div>'
     + '</div>'
+    + (db.lastAdd ? '<p class="hint" style="margin-top:8px">Última carga de figuritas: <b>'+fmtLastAdd()+'</b></p>' : '')
     + '<h2>Selecciones</h2><div class="teambtns">'+btns+'</div>'
     + '<div class="btn-line"><button onclick="printReport()">🖨 Reporte para imprimir</button></div>';
 }
@@ -821,12 +832,13 @@ function plus(){
   if(multiCodes.size){
     const codes = [...multiCodes];
     for(const code of codes) setCntRaw(code, cnt(code)+1);
+    db.lastAdd = new Date().toISOString();
     save(); renderAll();
     toast(codes.length+' figuritas sumadas');
     cloudPush(codes);
     return;
   }
-  if(selCode){ setCnt(selCode, cnt(selCode)+1); toast(selCode+' → '+(cnt(selCode)===1?'¡la tenés!':'repe ×'+(cnt(selCode)-1))); }
+  if(selCode){ db.lastAdd = new Date().toISOString(); setCnt(selCode, cnt(selCode)+1); toast(selCode+' → '+(cnt(selCode)===1?'¡la tenés!':'repe ×'+(cnt(selCode)-1))); }
 }
 function minus(){
   if(multiCodes.size){
@@ -1143,9 +1155,11 @@ async function pullAndMerge(){
   const uid = session.user.id;
   const remote = {};
   try{
-    const { data, error } = await sb.from('user_stickers').select('code,count').eq('user_id',uid).eq('album_id',ALBUM_ID);
+    const { data, error } = await sb.from('user_stickers').select('code,count,updated_at').eq('user_id',uid).eq('album_id',ALBUM_ID);
     if(error) throw error;
-    for(const r of (data||[])) remote[r.code] = r.count;
+    let remoteMax = 0;
+    for(const r of (data||[])){ remote[r.code] = r.count; const ts = Date.parse(r.updated_at); if(ts>remoteMax) remoteMax = ts; }
+    if(remoteMax && (!db.lastAdd || Date.parse(db.lastAdd) < remoteMax)) db.lastAdd = new Date(remoteMax).toISOString();
   }catch(e){ toast('No se pudo sincronizar (¿sin conexión?)'); return; }
   // merge sin pérdida: máximo por código entre local y nube
   const codes = new Set([...Object.keys(db.counts), ...Object.keys(remote)]);
